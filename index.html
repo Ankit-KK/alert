@@ -5,14 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>SIDDHARTH — Donation Alert | OBS Ready</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      user-select: none;
-    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; user-select:none; }
 
     body, html {
       background: transparent;
@@ -21,17 +16,39 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: 'Orbitron', monospace;
+      font-family: 'Syne', sans-serif;
       padding: 20px;
     }
 
-    /* ── OUTER WRAP: holds glow ring separately from clip-path ── */
+    /* ─────────────────────────────────────────
+       ENTRY ANIMATION STATES
+       .entering  → plays intro sequence
+       .leaving   → plays outro
+    ───────────────────────────────────────── */
+
+    /* OUTER WRAP — slides up from below on entry */
     .outer-wrap {
       position: relative;
       display: inline-block;
+      opacity: 0;
+      transform: translateY(40px) scale(0.94);
+    }
+    .outer-wrap.entering {
+      animation: wrapEnter 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.05s forwards;
+    }
+    .outer-wrap.leaving {
+      animation: wrapLeave 0.4s cubic-bezier(0.55, 0, 1, 0.45) forwards;
+    }
+    @keyframes wrapEnter {
+      0%   { opacity:0; transform: translateY(40px) scale(0.94); }
+      100% { opacity:1; transform: translateY(0)    scale(1); }
+    }
+    @keyframes wrapLeave {
+      0%   { opacity:1; transform: translateY(0)    scale(1); }
+      100% { opacity:0; transform: translateY(-28px) scale(0.95); }
     }
 
-    /* Glow ring lives OUTSIDE the card so clip-path doesn't eat it */
+    /* GLOW RING — fades in slightly after card */
     .glow-ring {
       position: absolute;
       inset: -4px;
@@ -41,20 +58,26 @@
         22px 100%, 0 calc(100% - 22px), 0 22px
       );
       background: transparent;
+      opacity: 0;
       box-shadow:
         0 0 0 2px #FFD966,
-        0 0 18px 4px rgba(255, 190, 30, 0.75),
-        0 0 40px 8px rgba(255, 150, 20, 0.45);
-      animation: ringPulse 2.4s infinite alternate;
+        0 0 18px 4px rgba(255,190,30,0.75),
+        0 0 40px 8px rgba(255,150,20,0.45);
       pointer-events: none;
       z-index: 1;
     }
+    .entering .glow-ring {
+      animation: ringFadeIn 0.4s ease 0.4s forwards, ringPulse 2.4s infinite alternate 0.8s;
+    }
+    @keyframes ringFadeIn {
+      to { opacity: 1; }
+    }
     @keyframes ringPulse {
-      0%   { box-shadow: 0 0 0 2px #FFD966, 0 0 14px 3px rgba(255,190,30,0.6), 0 0 30px 6px rgba(255,140,0,0.3); }
-      100% { box-shadow: 0 0 0 2.5px #FFE484, 0 0 26px 6px rgba(255,220,60,0.95), 0 0 52px 12px rgba(255,170,0,0.55); }
+      0%   { box-shadow: 0 0 0 2px #FFD966,   0 0 14px 3px  rgba(255,190,30,0.6),  0 0 30px 6px  rgba(255,140,0,0.3); }
+      100% { box-shadow: 0 0 0 2.5px #FFE484, 0 0 26px 6px  rgba(255,220,60,0.95), 0 0 52px 12px rgba(255,170,0,0.55); }
     }
 
-    /* ── MAIN CARD ── */
+    /* CARD */
     .card {
       position: relative;
       width: 900px;
@@ -70,7 +93,25 @@
       overflow: hidden;
     }
 
-    /* ── SVG BORDER OVERLAY (clip-path clips bg but not SVG drawn on top) ── */
+    /* GOLD FLASH — full-card burst on entry */
+    .flash {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 50%, rgba(255,220,80,0.55), transparent 70%);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 20;
+    }
+    .entering .flash {
+      animation: flashBurst 0.7s ease-out 0.3s forwards;
+    }
+    @keyframes flashBurst {
+      0%   { opacity: 0;   transform: scale(0.7); }
+      30%  { opacity: 1;   transform: scale(1.05); }
+      100% { opacity: 0;   transform: scale(1.2); }
+    }
+
+    /* SVG BORDER — stroke draws in on entry */
     .border-svg {
       position: absolute;
       inset: 0;
@@ -80,8 +121,25 @@
       z-index: 10;
       overflow: visible;
     }
+    .border-outer {
+      stroke-dasharray: 2000;
+      stroke-dashoffset: 2000;
+    }
+    .entering .border-outer {
+      animation: drawBorder 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.15s forwards;
+    }
+    @keyframes drawBorder {
+      to { stroke-dashoffset: 0; }
+    }
+    .border-inner {
+      stroke-dasharray: 1900;
+      stroke-dashoffset: 1900;
+    }
+    .entering .border-inner {
+      animation: drawBorder 0.7s cubic-bezier(0.4, 0, 0.2, 1) 0.25s forwards;
+    }
 
-    /* ── INNER BEVEL LINE ── */
+    /* INNER BEVEL */
     .inner-bevel {
       position: absolute;
       inset: 6px;
@@ -90,75 +148,86 @@
         100% calc(100% - 16px), calc(100% - 16px) 100%,
         16px 100%, 0 calc(100% - 16px), 0 16px
       );
-      border: 1px solid rgba(255, 200, 70, 0.22);
+      border: 1px solid rgba(255,200,70,0.22);
       pointer-events: none;
       z-index: 3;
     }
 
-    /* ── CORNER BRACKET ACCENTS ── */
+    /* CORNER BRACKETS — each slides in from its corner */
     .cb {
       position: absolute;
-      width: 26px;
-      height: 26px;
+      width: 26px; height: 26px;
       border-color: #FFE484;
       border-style: solid;
       z-index: 11;
       pointer-events: none;
       filter: drop-shadow(0 0 4px #ffcc44);
+      opacity: 0;
     }
-    .cb-tl { top: -2px;  left: -2px;  border-width: 3px 0 0 3px; }
-    .cb-tr { top: -2px;  right: -2px; border-width: 3px 3px 0 0; }
-    .cb-bl { bottom: -2px; left: -2px;  border-width: 0 0 3px 3px; }
-    .cb-br { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; }
+    .cb-tl { top:-2px;    left:-2px;   border-width: 3px 0 0 3px; }
+    .cb-tr { top:-2px;    right:-2px;  border-width: 3px 3px 0 0; }
+    .cb-bl { bottom:-2px; left:-2px;   border-width: 0 0 3px 3px; }
+    .cb-br { bottom:-2px; right:-2px;  border-width: 0 3px 3px 0; }
 
-    /* ── GOLD SCAN SHIMMER ── */
+    .entering .cb-tl { animation: cbSlide 0.35s ease 0.55s forwards; --tx:-6px; --ty:-6px; }
+    .entering .cb-tr { animation: cbSlide 0.35s ease 0.60s forwards; --tx:6px;  --ty:-6px; }
+    .entering .cb-bl { animation: cbSlide 0.35s ease 0.65s forwards; --tx:-6px; --ty:6px;  }
+    .entering .cb-br { animation: cbSlide 0.35s ease 0.70s forwards; --tx:6px;  --ty:6px;  }
+    @keyframes cbSlide {
+      0%   { opacity:0; transform: translate(var(--tx), var(--ty)); }
+      100% { opacity:1; transform: translate(0,0); }
+    }
+
+    /* SCAN SHIMMER — loops after entry */
     .scan {
       position: absolute;
-      top: 0; left: -40%;
-      width: 35%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.08), transparent);
+      top:0; left:-40%;
+      width: 35%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,215,0,0.09), transparent);
       transform: skewX(-18deg);
-      animation: scanMove 6s infinite linear;
       pointer-events: none;
       z-index: 4;
-    }
-    @keyframes scanMove {
-      0%   { left: -40%; opacity: 0; }
-      15%  { opacity: 1; }
-      55%  { left: 120%; opacity: 0; }
-      100% { left: 120%; opacity: 0; }
-    }
-
-    /* ── FLOATING PARTICLES ── */
-    .pf { position: absolute; inset: 0; pointer-events: none; z-index: 6; overflow: hidden; }
-    .p {
-      position: absolute;
-      width: 4px; height: 4px;
-      background: #FFD966;
-      border-radius: 50%;
-      box-shadow: 0 0 6px #ffcc44;
       opacity: 0;
-      animation: pfloat 5s infinite ease-in-out;
     }
-    .p:nth-child(1)  { top:10%; left:8%;   animation-delay:0s;    width:5px; height:5px; }
-    .p:nth-child(2)  { top:75%; left:92%;  animation-delay:0.7s; }
-    .p:nth-child(3)  { top:30%; left:20%;  animation-delay:1.4s;  width:6px; height:6px; }
-    .p:nth-child(4)  { top:85%; left:45%;  animation-delay:0.4s; }
-    .p:nth-child(5)  { top:20%; left:68%;  animation-delay:2.1s; }
-    .p:nth-child(6)  { top:60%; left:15%;  animation-delay:1.8s;  width:3px; height:3px; }
-    .p:nth-child(7)  { top:5%;  left:50%;  animation-delay:2.9s;  width:5px; height:5px; }
-    .p:nth-child(8)  { top:90%; left:72%;  animation-delay:2.4s; }
-    .p:nth-child(9)  { top:48%; left:88%;  animation-delay:0.3s;  width:4px; height:4px; }
-    .p:nth-child(10) { top:18%; left:34%;  animation-delay:3.2s;  width:5px; height:5px; }
-    @keyframes pfloat {
-      0%   { opacity: 0;   transform: translateY(0px)   scale(0.5); }
-      30%  { opacity: 0.9; transform: translateY(-10px) scale(1.1); }
-      70%  { opacity: 0.5; transform: translateY(4px)   scale(0.85); }
-      100% { opacity: 0;   transform: translateY(18px)  scale(0.3); }
+    .entering .scan {
+      animation: scanDelay 6s infinite linear 1.2s;
+    }
+    @keyframes scanDelay {
+      0%   { left:-40%; opacity:0; }
+      10%  { opacity:1; }
+      50%  { left:120%; opacity:0; }
+      100% { left:120%; opacity:0; }
     }
 
-    /* ── MAIN LAYOUT ── */
+    /* FLOATING PARTICLES */
+    .pf { position:absolute; inset:0; pointer-events:none; z-index:6; overflow:hidden; }
+    .p {
+      position:absolute;
+      width:4px; height:4px;
+      background:#FFD966;
+      border-radius:50%;
+      box-shadow:0 0 6px #ffcc44;
+      opacity:0;
+    }
+    .entering .p { animation: pfloat 5s infinite ease-in-out; }
+    .p:nth-child(1)  { top:10%; left:8%;   animation-delay:0.9s;  width:5px; height:5px; }
+    .p:nth-child(2)  { top:75%; left:92%;  animation-delay:1.6s; }
+    .p:nth-child(3)  { top:30%; left:20%;  animation-delay:2.3s;  width:6px; height:6px; }
+    .p:nth-child(4)  { top:85%; left:45%;  animation-delay:1.3s; }
+    .p:nth-child(5)  { top:20%; left:68%;  animation-delay:3.0s; }
+    .p:nth-child(6)  { top:60%; left:15%;  animation-delay:2.7s;  width:3px; height:3px; }
+    .p:nth-child(7)  { top:5%;  left:50%;  animation-delay:3.8s;  width:5px; height:5px; }
+    .p:nth-child(8)  { top:90%; left:72%;  animation-delay:3.3s; }
+    .p:nth-child(9)  { top:48%; left:88%;  animation-delay:1.1s;  width:4px; height:4px; }
+    .p:nth-child(10) { top:18%; left:34%;  animation-delay:4.1s;  width:5px; height:5px; }
+    @keyframes pfloat {
+      0%   { opacity:0;   transform:translateY(0)    scale(0.5); }
+      30%  { opacity:0.9; transform:translateY(-10px) scale(1.1); }
+      70%  { opacity:0.5; transform:translateY(4px)   scale(0.85); }
+      100% { opacity:0;   transform:translateY(18px)  scale(0.3); }
+    }
+
+    /* ── LAYOUT ── */
     .layout {
       display: flex;
       align-items: center;
@@ -167,171 +236,161 @@
       z-index: 5;
     }
 
-    /* ── MASCOT ── */
+    /* MASCOT — pops in with overshoot bounce */
     .mascot-wrap {
       flex-shrink: 0;
       position: relative;
-      width: 104px;
-      height: 104px;
+      width: 104px; height: 104px;
+      opacity: 0;
+      transform: scale(0.4) rotate(-12deg);
+    }
+    .entering .mascot-wrap {
+      animation: mascotPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.45s forwards;
+    }
+    @keyframes mascotPop {
+      0%   { opacity:0; transform: scale(0.4) rotate(-12deg); }
+      100% { opacity:1; transform: scale(1)   rotate(0deg); }
     }
     .mascot-bg {
-      position: absolute;
-      inset: 0;
+      position: absolute; inset: 0;
       border-radius: 50%;
       background: radial-gradient(circle at 38% 32%, #c98010, #7a4e00);
       border: 3px solid #FFD966;
-      box-shadow:
-        0 0 20px rgba(255, 185, 0, 0.8),
-        inset 0 0 12px rgba(255, 220, 80, 0.4);
-      animation: mascotPulse 2s infinite alternate;
+      box-shadow: 0 0 20px rgba(255,185,0,0.8), inset 0 0 12px rgba(255,220,80,0.4);
+      animation: mascotGlow 2s infinite alternate;
     }
-    @keyframes mascotPulse {
-      0%   { box-shadow: 0 0 12px rgba(255,170,0,0.6), inset 0 0 6px rgba(255,200,60,0.3); }
+    @keyframes mascotGlow {
+      0%   { box-shadow: 0 0 12px rgba(255,170,0,0.6),  inset 0 0 6px  rgba(255,200,60,0.3); }
       100% { box-shadow: 0 0 28px rgba(255,210,30,0.95), inset 0 0 16px rgba(255,230,100,0.5); }
     }
     .mascot-img {
-      position: absolute;
-      inset: 3px;
-      width: calc(100% - 6px);
-      height: calc(100% - 6px);
-      border-radius: 50%;
-      object-fit: cover;
-      display: block;
+      position:absolute; inset:3px;
+      width:calc(100% - 6px); height:calc(100% - 6px);
+      border-radius:50%; object-fit:cover; display:block;
     }
-    /* Shown only when image fails to load */
     .mascot-fallback {
-      position: absolute;
-      inset: 3px;
-      border-radius: 50%;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      font-size: 44px;
-      background: radial-gradient(circle at 35% 30%, #a06a10, #5a3800);
+      position:absolute; inset:3px; border-radius:50%;
+      display:none; align-items:center; justify-content:center;
+      font-size:44px;
+      background:radial-gradient(circle at 35% 30%, #a06a10, #5a3800);
     }
 
-    /* ── TEXT BLOCK ── */
+    /* TEXT BLOCK — children stagger in from left */
     .text-block {
       flex: 1;
       display: flex;
       flex-direction: column;
       gap: 3px;
     }
-
-    /* USERNAME */
-    .username {
-      font-family: 'Orbitron', monospace;
-      font-size: 40px;
-      font-weight: 900;
-      letter-spacing: 3px;
-      color: #FFD340;
-      text-shadow:
-        0 2px 4px rgba(0,0,0,0.95),
-        0 0 12px rgba(255, 200, 30, 1),
-        0 0 28px rgba(255, 160, 0, 0.8),
-        -1px -1px 0 rgba(0,0,0,0.8),
-        1px 1px 0 rgba(0,0,0,0.8);
-      line-height: 1.1;
+    .username, .amount-row, .message {
+      opacity: 0;
+      transform: translateX(-22px);
+    }
+    .entering .username   { animation: textSlide 0.45s cubic-bezier(0.22,1,0.36,1) 0.62s forwards; }
+    .entering .amount-row { animation: textSlide 0.45s cubic-bezier(0.22,1,0.36,1) 0.76s forwards; }
+    .entering .message    { animation: textSlide 0.45s cubic-bezier(0.22,1,0.36,1) 0.90s forwards; }
+    @keyframes textSlide {
+      0%   { opacity:0; transform:translateX(-22px); }
+      100% { opacity:1; transform:translateX(0); }
     }
 
-    /* ₹40 TEXT — same row */
+    .username {
+      font-family:'Syne',sans-serif; font-size:40px; font-weight:800;
+      letter-spacing:3px; color:#FFD340;
+      text-shadow:
+        0 2px 4px rgba(0,0,0,0.95),
+        0 0 12px rgba(255,200,30,1),
+        0 0 28px rgba(255,160,0,0.8),
+        -1px -1px 0 rgba(0,0,0,0.8),
+         1px  1px 0 rgba(0,0,0,0.8);
+      line-height:1.1;
+    }
+
     .amount-row {
-      display: flex;
-      align-items: baseline;
-      gap: 16px;
-      margin-top: 2px;
+      display:flex; align-items:baseline; gap:16px; margin-top:2px;
     }
     .amount {
-      font-family: 'Orbitron', monospace;
-      font-size: 40px;
-      font-weight: 900;
-      color: #FFD340;
+      font-family:'Syne',sans-serif; font-size:40px; font-weight:800;
+      color:#FFD340; letter-spacing:1px; line-height:1.1;
       text-shadow:
         0 2px 4px rgba(0,0,0,0.95),
-        0 0 12px rgba(255, 200, 30, 1),
-        0 0 28px rgba(255, 160, 0, 0.8),
+        0 0 12px rgba(255,200,30,1),
+        0 0 28px rgba(255,160,0,0.8),
         -1px -1px 0 rgba(0,0,0,0.8),
-        1px 1px 0 rgba(0,0,0,0.8);
-      letter-spacing: 1px;
-      line-height: 1.1;
+         1px  1px 0 rgba(0,0,0,0.8);
     }
     .text-badge {
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 24px;
-      font-weight: 700;
-      letter-spacing: 5px;
-      color: #FFD340;
+      font-family:'Syne',sans-serif; font-size:24px; font-weight:700;
+      letter-spacing:5px; color:#FFD340; text-transform:uppercase;
       text-shadow:
         0 2px 4px rgba(0,0,0,0.95),
-        0 0 10px rgba(255, 185, 30, 1),
+        0 0 10px rgba(255,185,30,1),
         -1px -1px 0 rgba(0,0,0,0.8),
-        1px 1px 0 rgba(0,0,0,0.8);
-      text-transform: uppercase;
+         1px  1px 0 rgba(0,0,0,0.8);
     }
-
-    /* QUOTED MESSAGE */
     .message {
-      font-family: 'Poppins', sans-serif;
-      font-size: 22px;
-      font-weight: 600;
-      color: #FFF0DC;
+      font-family:'Syne',sans-serif; font-size:22px; font-weight:600;
+      color:#FFF0DC; letter-spacing:0.3px; margin-top:6px;
       text-shadow:
         0 2px 4px rgba(0,0,0,0.95),
-        0 0 12px rgba(255, 165, 55, 0.7),
+        0 0 12px rgba(255,165,55,0.7),
         -1px -1px 0 rgba(0,0,0,0.9),
-        1px 1px 0 rgba(0,0,0,0.9);
-      letter-spacing: 0.3px;
-      margin-top: 6px;
+         1px  1px 0 rgba(0,0,0,0.9);
     }
 
-    /* ── EQUALIZER ── */
+    /* EQUALIZER — bars grow up after text */
     .eq {
-      flex-shrink: 0;
-      display: flex;
-      align-items: flex-end;
-      gap: 5px;
-      height: 64px;
-      padding-right: 4px;
+      flex-shrink:0; display:flex; align-items:flex-end;
+      gap:5px; height:64px; padding-right:4px;
+      opacity: 0;
+    }
+    .entering .eq {
+      animation: eqFadeIn 0.4s ease 1.0s forwards;
+    }
+    @keyframes eqFadeIn {
+      to { opacity:1; }
     }
     .bar {
-      width: 7px;
-      background: linear-gradient(to top, #c97e00, #FFD340, #FFF5AA);
-      border-radius: 2px 2px 1px 1px;
-      box-shadow: 0 0 8px rgba(255, 190, 30, 0.8);
-      animation: eqAnim 1s infinite ease-in-out alternate;
+      width:7px;
+      background:linear-gradient(to top, #c97e00, #FFD340, #FFF5AA);
+      border-radius:2px 2px 1px 1px;
+      box-shadow:0 0 8px rgba(255,190,30,0.8);
     }
-    .bar:nth-child(1) { animation-duration: 0.7s;  animation-delay: 0s;    }
-    .bar:nth-child(2) { animation-duration: 1.1s;  animation-delay: 0.15s; }
-    .bar:nth-child(3) { animation-duration: 0.85s; animation-delay: 0.05s; }
-    .bar:nth-child(4) { animation-duration: 0.6s;  animation-delay: 0.25s; }
-    .bar:nth-child(5) { animation-duration: 1.0s;  animation-delay: 0.1s;  }
-    .bar:nth-child(6) { animation-duration: 0.75s; animation-delay: 0.2s;  }
-    .bar:nth-child(7) { animation-duration: 0.9s;  animation-delay: 0.08s; }
+    .entering .bar { animation: eqAnim 1s infinite ease-in-out alternate; }
+    .bar:nth-child(1) { animation-duration:0.7s;  animation-delay:1.0s; }
+    .bar:nth-child(2) { animation-duration:1.1s;  animation-delay:1.15s; }
+    .bar:nth-child(3) { animation-duration:0.85s; animation-delay:1.05s; }
+    .bar:nth-child(4) { animation-duration:0.6s;  animation-delay:1.25s; }
+    .bar:nth-child(5) { animation-duration:1.0s;  animation-delay:1.1s; }
+    .bar:nth-child(6) { animation-duration:0.75s; animation-delay:1.2s; }
+    .bar:nth-child(7) { animation-duration:0.9s;  animation-delay:1.08s; }
     @keyframes eqAnim {
-      0%   { height: 8px;  opacity: 0.65; }
-      100% { height: 56px; opacity: 1; }
+      0%   { height:8px;  opacity:0.65; }
+      100% { height:56px; opacity:1; }
     }
 
     /* ── RESPONSIVE ── */
-    @media (max-width: 700px) {
-      .card { padding: 14px 16px; }
-      .username, .amount { font-size: 28px; letter-spacing: 2px; }
-      .text-badge { font-size: 18px; }
-      .message { font-size: 16px; }
-      .mascot-wrap { width: 78px; height: 78px; }
-      .eq { height: 48px; }
+    @media (max-width:700px) {
+      .card { padding:14px 16px; }
+      .username, .amount { font-size:28px; letter-spacing:2px; }
+      .text-badge { font-size:18px; }
+      .message { font-size:16px; }
+      .mascot-wrap { width:78px; height:78px; }
+      .eq { height:48px; }
     }
   </style>
 </head>
 <body>
-  <div class="outer-wrap">
+  <div class="outer-wrap" id="alertWrap">
 
-    <!-- Glow ring (outside clip-path) -->
     <div class="glow-ring"></div>
 
     <div class="card">
 
-      <!-- Gold bevel border drawn via SVG so it's never clipped -->
+      <!-- Gold burst flash on entry -->
+      <div class="flash"></div>
+
+      <!-- SVG border with draw-in animation -->
       <svg class="border-svg" viewBox="0 0 900 144" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <filter id="gf" x="-20%" y="-20%" width="140%" height="140%">
@@ -339,32 +398,26 @@
             <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
         </defs>
-        <!-- Outer gold bevel border -->
-        <polygon
+        <polygon class="border-outer"
           points="22,1 878,1 899,22 899,122 878,143 22,143 1,122 1,22"
-          fill="none" stroke="#FFD966" stroke-width="2.5"
-          filter="url(#gf)"
+          fill="none" stroke="#FFD966" stroke-width="2.5" filter="url(#gf)"
         />
-        <!-- Inner subtle line -->
-        <polygon
+        <polygon class="border-inner"
           points="30,9 870,9 891,30 891,114 870,135 30,135 9,114 9,30"
-          fill="none" stroke="rgba(255,200,70,0.25)" stroke-width="1"
+          fill="none" stroke="rgba(255,200,70,0.28)" stroke-width="1"
         />
       </svg>
 
-      <!-- Corner bracket accents -->
+      <!-- Corner brackets -->
       <div class="cb cb-tl"></div>
       <div class="cb cb-tr"></div>
       <div class="cb cb-bl"></div>
       <div class="cb cb-br"></div>
 
-      <!-- Inner bevel glow -->
       <div class="inner-bevel"></div>
-
-      <!-- Scan shimmer -->
       <div class="scan"></div>
 
-      <!-- Floating particles -->
+      <!-- Particles -->
       <div class="pf">
         <div class="p"></div><div class="p"></div><div class="p"></div>
         <div class="p"></div><div class="p"></div><div class="p"></div>
@@ -375,15 +428,11 @@
       <!-- MAIN LAYOUT -->
       <div class="layout">
 
-        <!-- Mascot — place sidd-logo.jpg in the same folder -->
+        <!-- Mascot -->
         <div class="mascot-wrap">
           <div class="mascot-bg"></div>
-          <img
-            src="sidd-logo.jpg"
-            alt="Siddharth"
-            class="mascot-img"
-            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-          >
+          <img src="sidd-logo.jpg" alt="Siddharth" class="mascot-img"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
           <div class="mascot-fallback">🐒</div>
         </div>
 
@@ -399,17 +448,38 @@
 
         <!-- Equalizer -->
         <div class="eq">
-          <div class="bar"></div>
-          <div class="bar"></div>
-          <div class="bar"></div>
-          <div class="bar"></div>
-          <div class="bar"></div>
-          <div class="bar"></div>
+          <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+          <div class="bar"></div><div class="bar"></div><div class="bar"></div>
           <div class="bar"></div>
         </div>
 
       </div>
     </div>
   </div>
+
+  <script>
+    const wrap = document.getElementById('alertWrap');
+
+    // Kick off entry animation on load
+    function playEnter() {
+      wrap.classList.remove('leaving');
+      wrap.classList.add('entering');
+    }
+
+    // Call playLeave() to dismiss (e.g. from OBS widget JS or after a timeout)
+    function playLeave() {
+      wrap.classList.remove('entering');
+      wrap.classList.add('leaving');
+    }
+
+    // Auto-play entry on load
+    window.addEventListener('load', () => {
+      // Small delay so OBS browser source is fully ready
+      setTimeout(playEnter, 100);
+
+      // Optional: auto-dismiss after 8 seconds (comment out if you want manual control)
+      // setTimeout(playLeave, 8000);
+    });
+  </script>
 </body>
 </html>
