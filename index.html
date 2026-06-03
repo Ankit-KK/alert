@@ -3,16 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>SIDDHARTH — Beveled Edge Cyber Alert | Angled Corners | OBS Ready</title>
+  <title>SIDDHARTH — Donation Alert | OBS Ready</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
   <style>
-    * {
+    *, *::before, *::after {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
       user-select: none;
     }
 
-    /* FULLY TRANSPARENT BACKGROUND — no solid panels, no grey rectangle */
     body, html {
       background: transparent;
       width: 100%;
@@ -20,476 +21,395 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: 'Orbitron', 'Rajdhani', 'Poppins', 'Segoe UI', system-ui, monospace;
-      margin: 0;
+      font-family: 'Orbitron', monospace;
       padding: 20px;
     }
 
-    /* ========= MAIN ALERT CONTAINER – BEVELED / ANGLED CORNERS (no 90°) ========= */
-    /* using clip-path to create 45° slanted corners on all four sides */
-    .donation-alert {
+    /* ── OUTER WRAP: holds glow ring separately from clip-path ── */
+    .outer-wrap {
       position: relative;
-      width: 1100px;
-      max-width: 92vw;
-      min-width: 860px;
-      background: transparent;
-      /* gold frame – will be clipped to the beveled shape */
-      border: 2.5px solid #FFD966;
-      border-radius: 0;
-      /* clip-path: bevel corners (20px inward slant) */
-      clip-path: polygon(
-        24px 0,
-        calc(100% - 24px) 0,
-        100% 24px,
-        100% calc(100% - 24px),
-        calc(100% - 24px) 100%,
-        24px 100%,
-        0 calc(100% - 24px),
-        0 24px
-      );
-      /* outer glow that respects shape (using drop-shadow) */
-      filter: drop-shadow(0 0 12px rgba(255, 190, 30, 0.8)) drop-shadow(0 0 24px rgba(255, 160, 20, 0.5));
-      backdrop-filter: none;
-      overflow: visible;
-      padding: 22px 28px 22px 26px;
-      transition: all 0.2s ease;
+      display: inline-block;
     }
 
-    /* Additional external angled lines – corner brackets that extend outwards (angled) */
-    .donation-alert::before,
-    .donation-alert::after {
-      content: '';
+    /* Glow ring lives OUTSIDE the card so clip-path doesn't eat it */
+    .glow-ring {
       position: absolute;
-      width: 36px;
-      height: 36px;
+      inset: -4px;
+      clip-path: polygon(
+        22px 0, calc(100% - 22px) 0, 100% 22px,
+        100% calc(100% - 22px), calc(100% - 22px) 100%,
+        22px 100%, 0 calc(100% - 22px), 0 22px
+      );
+      background: transparent;
+      box-shadow:
+        0 0 0 2px #FFD966,
+        0 0 18px 4px rgba(255, 190, 30, 0.75),
+        0 0 40px 8px rgba(255, 150, 20, 0.45);
+      animation: ringPulse 2.4s infinite alternate;
+      pointer-events: none;
+      z-index: 1;
+    }
+    @keyframes ringPulse {
+      0%   { box-shadow: 0 0 0 2px #FFD966, 0 0 14px 3px rgba(255,190,30,0.6), 0 0 30px 6px rgba(255,140,0,0.3); }
+      100% { box-shadow: 0 0 0 2.5px #FFE484, 0 0 26px 6px rgba(255,220,60,0.95), 0 0 52px 12px rgba(255,170,0,0.55); }
+    }
+
+    /* ── MAIN CARD ── */
+    .card {
+      position: relative;
+      width: 900px;
+      max-width: 96vw;
+      background: transparent;
+      clip-path: polygon(
+        22px 0, calc(100% - 22px) 0, 100% 22px,
+        100% calc(100% - 22px), calc(100% - 22px) 100%,
+        22px 100%, 0 calc(100% - 22px), 0 22px
+      );
+      padding: 20px 26px 20px 22px;
+      z-index: 2;
+      overflow: hidden;
+    }
+
+    /* ── SVG BORDER OVERLAY (clip-path clips bg but not SVG drawn on top) ── */
+    .border-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+      overflow: visible;
+    }
+
+    /* ── INNER BEVEL LINE ── */
+    .inner-bevel {
+      position: absolute;
+      inset: 6px;
+      clip-path: polygon(
+        16px 0, calc(100% - 16px) 0, 100% 16px,
+        100% calc(100% - 16px), calc(100% - 16px) 100%,
+        16px 100%, 0 calc(100% - 16px), 0 16px
+      );
+      border: 1px solid rgba(255, 200, 70, 0.22);
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    /* ── CORNER BRACKET ACCENTS ── */
+    .cb {
+      position: absolute;
+      width: 26px;
+      height: 26px;
       border-color: #FFE484;
       border-style: solid;
-      filter: drop-shadow(0 0 6px #ffaa44);
+      z-index: 11;
       pointer-events: none;
-      z-index: 6;
-      clip-path: none; /* keep these as normal elements outside the clip-path */
+      filter: drop-shadow(0 0 4px #ffcc44);
     }
-    /* top-left external angled bracket (mirrors the bevel) */
-    .donation-alert::before {
-      top: -8px;
-      left: -8px;
-      border-width: 4px 0 0 4px;
-      transform: rotate(0deg);
+    .cb-tl { top: -2px;  left: -2px;  border-width: 3px 0 0 3px; }
+    .cb-tr { top: -2px;  right: -2px; border-width: 3px 3px 0 0; }
+    .cb-bl { bottom: -2px; left: -2px;  border-width: 0 0 3px 3px; }
+    .cb-br { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; }
+
+    /* ── GOLD SCAN SHIMMER ── */
+    .scan {
+      position: absolute;
+      top: 0; left: -40%;
+      width: 35%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.08), transparent);
+      transform: skewX(-18deg);
+      animation: scanMove 6s infinite linear;
+      pointer-events: none;
+      z-index: 4;
     }
-    /* bottom-right external angled bracket */
-    .donation-alert::after {
-      bottom: -8px;
-      right: -8px;
-      border-width: 0 4px 4px 0;
+    @keyframes scanMove {
+      0%   { left: -40%; opacity: 0; }
+      15%  { opacity: 1; }
+      55%  { left: 120%; opacity: 0; }
+      100% { left: 120%; opacity: 0; }
     }
 
-    /* top-right + bottom-left external corner accents (angled, matching bevel vibe) */
-    .corner-accent-tr {
+    /* ── FLOATING PARTICLES ── */
+    .pf { position: absolute; inset: 0; pointer-events: none; z-index: 6; overflow: hidden; }
+    .p {
       position: absolute;
-      top: -8px;
-      right: -8px;
-      width: 36px;
-      height: 36px;
-      border-width: 0 4px 4px 0;
-      border-style: solid;
-      border-color: #FFD966;
-      filter: drop-shadow(0 0 5px #ffbb44);
-      pointer-events: none;
-      z-index: 6;
+      width: 4px; height: 4px;
+      background: #FFD966;
+      border-radius: 50%;
+      box-shadow: 0 0 6px #ffcc44;
+      opacity: 0;
+      animation: pfloat 5s infinite ease-in-out;
     }
-    .corner-accent-bl {
-      position: absolute;
-      bottom: -8px;
-      left: -8px;
-      width: 36px;
-      height: 36px;
-      border-width: 4px 0 0 4px;
-      border-style: solid;
-      border-color: #FFD966;
-      filter: drop-shadow(0 0 5px #ffbb44);
-      pointer-events: none;
-      z-index: 6;
-    }
-
-    /* Inner angled glow line (repeats the bevel pattern) */
-    .donation-alert .glow-inner {
-      position: absolute;
-      top: 6px;
-      left: 6px;
-      right: 6px;
-      bottom: 6px;
-      border: 1px solid rgba(255, 200, 70, 0.7);
-      box-shadow: inset 0 0 12px rgba(255, 190, 0, 0.4);
-      pointer-events: none;
-      background: transparent;
-      clip-path: polygon(
-        20px 0,
-        calc(100% - 20px) 0,
-        100% 20px,
-        100% calc(100% - 20px),
-        calc(100% - 20px) 100%,
-        20px 100%,
-        0 calc(100% - 20px),
-        0 20px
-      );
+    .p:nth-child(1)  { top:10%; left:8%;   animation-delay:0s;    width:5px; height:5px; }
+    .p:nth-child(2)  { top:75%; left:92%;  animation-delay:0.7s; }
+    .p:nth-child(3)  { top:30%; left:20%;  animation-delay:1.4s;  width:6px; height:6px; }
+    .p:nth-child(4)  { top:85%; left:45%;  animation-delay:0.4s; }
+    .p:nth-child(5)  { top:20%; left:68%;  animation-delay:2.1s; }
+    .p:nth-child(6)  { top:60%; left:15%;  animation-delay:1.8s;  width:3px; height:3px; }
+    .p:nth-child(7)  { top:5%;  left:50%;  animation-delay:2.9s;  width:5px; height:5px; }
+    .p:nth-child(8)  { top:90%; left:72%;  animation-delay:2.4s; }
+    .p:nth-child(9)  { top:48%; left:88%;  animation-delay:0.3s;  width:4px; height:4px; }
+    .p:nth-child(10) { top:18%; left:34%;  animation-delay:3.2s;  width:5px; height:5px; }
+    @keyframes pfloat {
+      0%   { opacity: 0;   transform: translateY(0px)   scale(0.5); }
+      30%  { opacity: 0.9; transform: translateY(-10px) scale(1.1); }
+      70%  { opacity: 0.5; transform: translateY(4px)   scale(0.85); }
+      100% { opacity: 0;   transform: translateY(18px)  scale(0.3); }
     }
 
-    /* FLEX LAYOUT: mascot | text block | equalizer */
-    .alert-inner {
+    /* ── MAIN LAYOUT ── */
+    .layout {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 26px;
-      width: 100%;
-      background: transparent;
+      gap: 24px;
       position: relative;
       z-index: 5;
     }
 
-    /* ========= MASCOT (avatar) ========= */
-    .mascot-wrapper {
+    /* ── MASCOT ── */
+    .mascot-wrap {
       flex-shrink: 0;
       position: relative;
-      filter: drop-shadow(0 0 14px #ffbb44);
+      width: 104px;
+      height: 104px;
     }
-    .mascot-wrapper::before {
-      content: '';
+    .mascot-bg {
       position: absolute;
-      top: -6px;
-      left: -6px;
-      right: -6px;
-      bottom: -6px;
-      background: radial-gradient(circle, rgba(255,200,50,0.3), transparent 70%);
-      z-index: -1;
-      pointer-events: none;
-      animation: pulseRing 2s infinite alternate;
-      border-radius: 0px;
+      inset: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle at 38% 32%, #c98010, #7a4e00);
+      border: 3px solid #FFD966;
+      box-shadow:
+        0 0 20px rgba(255, 185, 0, 0.8),
+        inset 0 0 12px rgba(255, 220, 80, 0.4);
+      animation: mascotPulse 2s infinite alternate;
     }
-    @keyframes pulseRing {
-      0% { opacity: 0.4; transform: scale(0.96); }
-      100% { opacity: 1; transform: scale(1.08); }
+    @keyframes mascotPulse {
+      0%   { box-shadow: 0 0 12px rgba(255,170,0,0.6), inset 0 0 6px rgba(255,200,60,0.3); }
+      100% { box-shadow: 0 0 28px rgba(255,210,30,0.95), inset 0 0 16px rgba(255,230,100,0.5); }
     }
     .mascot-img {
-      width: 96px;
-      height: 96px;
-      object-fit: cover;
+      position: absolute;
+      inset: 3px;
+      width: calc(100% - 6px);
+      height: calc(100% - 6px);
       border-radius: 50%;
-      border: 2.5px solid #FFD966;
-      box-shadow: 0 0 22px rgba(255, 200, 0, 0.9), inset 0 0 8px rgba(255, 220, 100, 0.7);
-      background: transparent;
+      object-fit: cover;
       display: block;
     }
-
-    /* ========= TEXT AREA – extremely visible username & premium hierarchy ========= */
-    .alert-text {
-      flex: 1;
-      background: transparent;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      padding-right: 12px;
-    }
-    /* USERNAME – bold, large, intense glow */
-    .username {
-      font-size: 54px;
-      font-weight: 900;
-      letter-spacing: 3.5px;
-      background: linear-gradient(145deg, #FFF5CF, #FFDE9E, #FFBC5E);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      text-shadow: 0 0 24px rgba(255, 200, 0, 0.9), 0 0 10px rgba(255, 160, 0, 0.7);
-      font-family: 'Orbitron', 'Rajdhani', monospace;
-      line-height: 1.2;
-    }
-    /* Amount (₹40) */
-    .amount {
-      font-size: 44px;
-      font-weight: 800;
-      background: linear-gradient(135deg, #FFEAA8, #FFC86F);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      text-shadow: 0 0 22px #FFB84D;
-      letter-spacing: 1.5px;
-      font-family: 'Orbitron', monospace;
-      margin-top: -4px;
-    }
-    /* "TEXT" label */
-    .text-label {
-      font-size: 18px;
-      font-weight: 800;
-      letter-spacing: 4px;
-      color: #FFE9BF;
-      text-transform: uppercase;
-      text-shadow: 0 0 14px #ffaa44;
-      background: transparent;
-      display: inline-block;
-      margin-top: 8px;
-      font-family: 'Rajdhani', monospace;
-      border-left: 3px solid #FFD966;
-      padding-left: 14px;
-    }
-    /* quoted message */
-    .message-quote {
-      font-size: 26px;
-      font-weight: 600;
-      color: #FFF6E6;
-      text-shadow: 0 0 16px #FFB347, 0 1px 2px rgba(0,0,0,0.2);
-      letter-spacing: 0.5px;
-      font-family: 'Poppins', 'Orbitron', sans-serif;
-      background: transparent;
-      word-break: break-word;
-    }
-
-    /* Responsive text */
-    @media (max-width: 950px) {
-      .username { font-size: 40px; letter-spacing: 2px; }
-      .amount { font-size: 34px; }
-      .message-quote { font-size: 20px; }
-      .text-label { font-size: 15px; }
-      .donation-alert { min-width: 680px; padding: 16px 22px; }
-      .mascot-img { width: 78px; height: 78px; }
-    }
-
-    /* ========= GLOWING EQUALIZER (right side, animated) ========= */
-    .equalizer-area {
-      flex-shrink: 0;
-      display: flex;
+    /* Shown only when image fails to load */
+    .mascot-fallback {
+      position: absolute;
+      inset: 3px;
+      border-radius: 50%;
+      display: none;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      background: transparent;
-      padding-left: 12px;
-      margin-left: 4px;
-      filter: drop-shadow(0 0 10px #ffbc3c);
-    }
-    .eq-bar {
-      width: 6px;
-      background: linear-gradient(to top, #FFD966, #FFAA33, #FFE484);
-      border-radius: 1px;
-      box-shadow: 0 0 12px #ffb347, 0 0 3px #ffdd88;
-      transition: height 0.18s ease;
-      animation: cyberPulse 1.3s infinite ease-in-out alternate;
-      transform-origin: bottom;
-    }
-    .eq-bar:nth-child(1) { height: 20px; animation-duration: 0.9s; }
-    .eq-bar:nth-child(2) { height: 36px; animation-duration: 1.2s; animation-delay: 0.1s; }
-    .eq-bar:nth-child(3) { height: 28px; animation-duration: 0.8s; animation-delay: 0.2s; }
-    .eq-bar:nth-child(4) { height: 48px; animation-duration: 1.4s; animation-delay: 0.05s; }
-    .eq-bar:nth-child(5) { height: 24px; animation-duration: 1s; animation-delay: 0.3s; }
-    .eq-bar:nth-child(6) { height: 40px; animation-duration: 1.25s; animation-delay: 0.15s; }
-    .eq-bar:nth-child(7) { height: 30px; animation-duration: 1.1s; animation-delay: 0.25s; }
-
-    @keyframes cyberPulse {
-      0% { height: 12px; opacity: 0.8; filter: brightness(0.9); }
-      100% { height: 52px; opacity: 1; filter: brightness(1.3) drop-shadow(0 0 6px gold); }
+      font-size: 44px;
+      background: radial-gradient(circle at 35% 30%, #a06a10, #5a3800);
     }
 
-    /* ========= FLOATING PARTICLES (cyber dust / glow effects) ========= */
-    .particle-field {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 2;
-      overflow: visible;
-    }
-    .particle {
-      position: absolute;
-      background: radial-gradient(circle, #FFE484, #FFB347);
-      width: 5px;
-      height: 5px;
-      border-radius: 0px;
-      opacity: 0;
-      filter: blur(0.5px);
-      animation: driftGlow 5s infinite ease-in-out;
-      box-shadow: 0 0 10px #ffcc55;
-    }
-    .particle:nth-child(1) { top: 12%; left: 7%; animation-delay: 0s; width: 6px; height: 6px; }
-    .particle:nth-child(2) { top: 78%; left: 94%; animation-delay: 0.8s; width: 4px; height: 4px; }
-    .particle:nth-child(3) { top: 35%; left: 18%; animation-delay: 1.5s; width: 7px; height: 7px; }
-    .particle:nth-child(4) { top: 88%; left: 42%; animation-delay: 0.5s; width: 5px; height: 5px; }
-    .particle:nth-child(5) { top: 22%; left: 72%; animation-delay: 2.2s; width: 5px; height: 5px; }
-    .particle:nth-child(6) { top: 65%; left: 12%; animation-delay: 1.9s; width: 4px; height: 4px; }
-    .particle:nth-child(7) { top: 8%; left: 52%; animation-delay: 3s; width: 6px; height: 6px; }
-    .particle:nth-child(8) { top: 92%; left: 76%; animation-delay: 2.5s; width: 5px; height: 5px; }
-    .particle:nth-child(9) { top: 48%; left: 85%; animation-delay: 0.3s; width: 4px; height: 4px; }
-    .particle:nth-child(10) { top: 18%; left: 33%; animation-delay: 3.2s; width: 6px; height: 6px; }
-    .particle:nth-child(11) { top: 72%; left: 64%; animation-delay: 1.1s; width: 5px; }
-    .particle:nth-child(12) { top: 40%; left: 96%; animation-delay: 0.9s; width: 5px; }
-    .particle:nth-child(13) { top: 55%; left: 5%; animation-delay: 2.8s; width: 4px; }
-
-    @keyframes driftGlow {
-      0% { opacity: 0; transform: translateY(0px) scale(0.6); }
-      25% { opacity: 0.9; transform: translateY(-12px) scale(1.2); }
-      70% { opacity: 0.7; transform: translateY(6px) scale(0.9); }
-      100% { opacity: 0; transform: translateY(20px) scale(0.4); }
+    /* ── TEXT BLOCK ── */
+    .text-block {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
     }
 
-    /* Gold shimmer scan line – adds cinematic movement */
-    .gold-scan {
-      position: absolute;
-      top: 0;
-      left: -20%;
-      width: 40%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.12), transparent);
-      transform: skewX(-20deg);
-      pointer-events: none;
-      z-index: 3;
-      animation: goldShine 5s infinite linear;
-      clip-path: polygon(
-        24px 0,
-        calc(100% - 24px) 0,
-        100% 24px,
-        100% calc(100% - 24px),
-        calc(100% - 24px) 100%,
-        24px 100%,
-        0 calc(100% - 24px),
-        0 24px
-      );
-    }
-    @keyframes goldShine {
-      0% { left: -30%; opacity: 0; }
-      20% { opacity: 0.4; }
-      40% { left: 110%; opacity: 0; }
-      100% { left: 110%; opacity: 0; }
+    /* USERNAME */
+    .username {
+      font-family: 'Orbitron', monospace;
+      font-size: 40px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: #FFD340;
+      text-shadow:
+        0 2px 4px rgba(0,0,0,0.95),
+        0 0 12px rgba(255, 200, 30, 1),
+        0 0 28px rgba(255, 160, 0, 0.8),
+        -1px -1px 0 rgba(0,0,0,0.8),
+        1px 1px 0 rgba(0,0,0,0.8);
+      line-height: 1.1;
     }
 
-    /* Frame glow pulse that works with bevel */
-    .donation-alert {
-      animation: frameGlowPulse 2.4s infinite alternate;
+    /* ₹40 TEXT — same row */
+    .amount-row {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin-top: 2px;
     }
-    @keyframes frameGlowPulse {
-      0% { filter: drop-shadow(0 0 8px rgba(255, 200, 30, 0.7)) drop-shadow(0 0 20px rgba(255, 160, 20, 0.5)); }
-      100% { filter: drop-shadow(0 0 20px rgba(255, 220, 60, 1)) drop-shadow(0 0 32px rgba(255, 170, 0, 0.8)); }
+    .amount {
+      font-family: 'Orbitron', monospace;
+      font-size: 40px;
+      font-weight: 900;
+      color: #FFD340;
+      text-shadow:
+        0 2px 4px rgba(0,0,0,0.95),
+        0 0 12px rgba(255, 200, 30, 1),
+        0 0 28px rgba(255, 160, 0, 0.8),
+        -1px -1px 0 rgba(0,0,0,0.8),
+        1px 1px 0 rgba(0,0,0,0.8);
+      letter-spacing: 1px;
+      line-height: 1.1;
     }
-
-    /* ultra sharp vector rendering */
-    .username, .amount, .message-quote, .text-label {
-      font-smoothing: antialiased;
-      -webkit-font-smoothing: antialiased;
-      text-rendering: optimizeLegibility;
-      backface-visibility: hidden;
-    }
-
-    @media (max-width: 860px) {
-      .donation-alert {
-        min-width: 94vw;
-        padding: 14px 18px;
-        clip-path: polygon(
-          18px 0,
-          calc(100% - 18px) 0,
-          100% 18px,
-          100% calc(100% - 18px),
-          calc(100% - 18px) 100%,
-          18px 100%,
-          0 calc(100% - 18px),
-          0 18px
-        );
-      }
-      .alert-inner {
-        gap: 14px;
-      }
-      .username {
-        font-size: 34px;
-        letter-spacing: 1.5px;
-      }
-      .amount {
-        font-size: 28px;
-      }
-      .message-quote {
-        font-size: 18px;
-      }
-      .text-label {
-        font-size: 13px;
-        padding-left: 10px;
-      }
-      .mascot-img {
-        width: 70px;
-        height: 70px;
-      }
-      .equalizer-area {
-        gap: 4px;
-      }
-      .eq-bar {
-        width: 4px;
-      }
-      .glow-inner {
-        clip-path: polygon(
-          14px 0,
-          calc(100% - 14px) 0,
-          100% 14px,
-          100% calc(100% - 14px),
-          calc(100% - 14px) 100%,
-          14px 100%,
-          0 calc(100% - 14px),
-          0 14px
-        );
-      }
+    .text-badge {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 5px;
+      color: #FFD340;
+      text-shadow:
+        0 2px 4px rgba(0,0,0,0.95),
+        0 0 10px rgba(255, 185, 30, 1),
+        -1px -1px 0 rgba(0,0,0,0.8),
+        1px 1px 0 rgba(0,0,0,0.8);
+      text-transform: uppercase;
     }
 
-    /* FULL TRANSPARENCY ENFORCEMENT – no background panels */
-    .donation-alert, .alert-inner, .alert-text, .mascot-wrapper, .equalizer-area,
-    .donation-alert * {
-      background-color: transparent !important;
+    /* QUOTED MESSAGE */
+    .message {
+      font-family: 'Poppins', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: #FFF0DC;
+      text-shadow:
+        0 2px 4px rgba(0,0,0,0.95),
+        0 0 12px rgba(255, 165, 55, 0.7),
+        -1px -1px 0 rgba(0,0,0,0.9),
+        1px 1px 0 rgba(0,0,0,0.9);
+      letter-spacing: 0.3px;
+      margin-top: 6px;
     }
-    .mascot-wrapper::before {
-      background: radial-gradient(circle, rgba(255,200,50,0.25), transparent 70%);
+
+    /* ── EQUALIZER ── */
+    .eq {
+      flex-shrink: 0;
+      display: flex;
+      align-items: flex-end;
+      gap: 5px;
+      height: 64px;
+      padding-right: 4px;
     }
-    body, html, .donation-alert, .glow-inner, .corner-accent-tr, .corner-accent-bl {
-      background: transparent;
+    .bar {
+      width: 7px;
+      background: linear-gradient(to top, #c97e00, #FFD340, #FFF5AA);
+      border-radius: 2px 2px 1px 1px;
+      box-shadow: 0 0 8px rgba(255, 190, 30, 0.8);
+      animation: eqAnim 1s infinite ease-in-out alternate;
+    }
+    .bar:nth-child(1) { animation-duration: 0.7s;  animation-delay: 0s;    }
+    .bar:nth-child(2) { animation-duration: 1.1s;  animation-delay: 0.15s; }
+    .bar:nth-child(3) { animation-duration: 0.85s; animation-delay: 0.05s; }
+    .bar:nth-child(4) { animation-duration: 0.6s;  animation-delay: 0.25s; }
+    .bar:nth-child(5) { animation-duration: 1.0s;  animation-delay: 0.1s;  }
+    .bar:nth-child(6) { animation-duration: 0.75s; animation-delay: 0.2s;  }
+    .bar:nth-child(7) { animation-duration: 0.9s;  animation-delay: 0.08s; }
+    @keyframes eqAnim {
+      0%   { height: 8px;  opacity: 0.65; }
+      100% { height: 56px; opacity: 1; }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 700px) {
+      .card { padding: 14px 16px; }
+      .username, .amount { font-size: 28px; letter-spacing: 2px; }
+      .text-badge { font-size: 18px; }
+      .message { font-size: 16px; }
+      .mascot-wrap { width: 78px; height: 78px; }
+      .eq { height: 48px; }
     }
   </style>
 </head>
 <body>
-  <div class="donation-alert">
-    <!-- Inner angled glow layer (matches bevel) -->
-    <div class="glow-inner"></div>
-    <!-- External angled corner brackets (extended lines) -->
-    <div class="corner-accent-tr"></div>
-    <div class="corner-accent-bl"></div>
+  <div class="outer-wrap">
 
-    <!-- Floating particles & glow effects (only visible elements) -->
-    <div class="particle-field">
-      <div class="particle"></div><div class="particle"></div><div class="particle"></div>
-      <div class="particle"></div><div class="particle"></div><div class="particle"></div>
-      <div class="particle"></div><div class="particle"></div><div class="particle"></div>
-      <div class="particle"></div><div class="particle"></div><div class="particle"></div>
-      <div class="particle"></div>
+    <!-- Glow ring (outside clip-path) -->
+    <div class="glow-ring"></div>
+
+    <div class="card">
+
+      <!-- Gold bevel border drawn via SVG so it's never clipped -->
+      <svg class="border-svg" viewBox="0 0 900 144" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="gf" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="1.5" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <!-- Outer gold bevel border -->
+        <polygon
+          points="22,1 878,1 899,22 899,122 878,143 22,143 1,122 1,22"
+          fill="none" stroke="#FFD966" stroke-width="2.5"
+          filter="url(#gf)"
+        />
+        <!-- Inner subtle line -->
+        <polygon
+          points="30,9 870,9 891,30 891,114 870,135 30,135 9,114 9,30"
+          fill="none" stroke="rgba(255,200,70,0.25)" stroke-width="1"
+        />
+      </svg>
+
+      <!-- Corner bracket accents -->
+      <div class="cb cb-tl"></div>
+      <div class="cb cb-tr"></div>
+      <div class="cb cb-bl"></div>
+      <div class="cb cb-br"></div>
+
+      <!-- Inner bevel glow -->
+      <div class="inner-bevel"></div>
+
+      <!-- Scan shimmer -->
+      <div class="scan"></div>
+
+      <!-- Floating particles -->
+      <div class="pf">
+        <div class="p"></div><div class="p"></div><div class="p"></div>
+        <div class="p"></div><div class="p"></div><div class="p"></div>
+        <div class="p"></div><div class="p"></div><div class="p"></div>
+        <div class="p"></div>
+      </div>
+
+      <!-- MAIN LAYOUT -->
+      <div class="layout">
+
+        <!-- Mascot — place sidd-logo.jpg in the same folder -->
+        <div class="mascot-wrap">
+          <div class="mascot-bg"></div>
+          <img
+            src="sidd-logo.jpg"
+            alt="Siddharth"
+            class="mascot-img"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+          >
+          <div class="mascot-fallback">🐒</div>
+        </div>
+
+        <!-- Text -->
+        <div class="text-block">
+          <div class="username">SIDDHARTH</div>
+          <div class="amount-row">
+            <div class="amount">₹40</div>
+            <div class="text-badge">TEXT</div>
+          </div>
+          <div class="message">"SIDD BHAI VANDAL SKIN REVIEW"</div>
+        </div>
+
+        <!-- Equalizer -->
+        <div class="eq">
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+
+      </div>
     </div>
-    <div class="gold-scan"></div>
-
-    <!-- MAIN LAYOUT: mascot + text + equalizer (exact reference structure) -->
-    <div class="alert-inner">
-      <!-- MASCOT (sidd-logo.jpg at root) -->
-      <div class="mascot-wrapper">
-        <img src="sidd-logo.jpg" alt="Siddharth" class="mascot-img" onerror="this.onerror=null; this.style.border='2.5px solid #FFD966'; this.style.background='radial-gradient(circle, #1f1b12, #0a0804)'; this.style.boxShadow='0 0 20px #ffaa44';">
-      </div>
-
-      <!-- TEXT EXACTLY: SIDDHARTH / ₹40 / TEXT / message -->
-      <div class="alert-text">
-        <div class="username">SIDDHARTH</div>
-        <div class="amount">₹40</div>
-        <div class="text-label">TEXT</div>
-        <div class="message-quote">“SIDD BHAI VANDAL SKIN REVIEW”</div>
-      </div>
-
-      <!-- GLOWING EQUALIZER (right side, animated bars) -->
-      <div class="equalizer-area">
-        <div class="eq-bar"></div>
-        <div class="eq-bar"></div>
-        <div class="eq-bar"></div>
-        <div class="eq-bar"></div>
-        <div class="eq-bar"></div>
-        <div class="eq-bar"></div>
-        <div class="eq-bar"></div>
-      </div>
-    </div>
-    <!-- FULLY TRANSPARENT BACKGROUND – only frame, mascot, text, equalizer, particles remain -->
   </div>
 </body>
 </html>
