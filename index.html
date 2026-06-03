@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OBS Alert - Siddharth</title>
+    <title>OBS Alert - Premium Gold</title>
     <style>
         * {
             margin: 0;
@@ -13,140 +13,142 @@
 
         body {
             background: transparent;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Arial Black', 'Segoe UI Black', sans-serif;
             overflow: hidden;
-            height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            min-height: 100vh;
         }
 
-        .alert-box {
+        .alert-container {
             position: relative;
-            width: 900px;
-            height: 200px;
-            background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
-            border: 3px solid #FFD700;
-            border-radius: 10px;
+            width: 1200px;
+            height: 240px;
             opacity: 0;
-            transform: translateX(-100%) scale(0.9);
-            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            box-shadow: 0 0 40px rgba(255, 215, 0, 0.3),
-                        inset 0 0 20px rgba(255, 215, 0, 0.1);
+            transform: translateX(-50px) scale(0.95);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
 
-        .alert-box.show {
+        .alert-container.show {
             opacity: 1;
             transform: translateX(0) scale(1);
         }
 
-        .alert-box.hide {
+        .alert-container.hide {
             opacity: 0;
-            transform: translateX(-100%) scale(0.9);
+            transform: translateX(-50px) scale(0.95);
         }
 
-        /* Animated border glow */
-        .alert-box::before {
-            content: '';
+        /* Outer frame border */
+        .outer-frame {
             position: absolute;
-            top: -3px;
-            left: -3px;
-            right: -3px;
-            bottom: -3px;
-            background: linear-gradient(45deg, #FFD700, #FFA500, #FFD700, #FF8C00, #FFD700);
-            background-size: 400% 400%;
-            border-radius: 10px;
-            opacity: 0;
-            z-index: -1;
-            transition: opacity 0.3s;
-            animation: gradientShift 3s ease infinite;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 3px solid #FFD700;
+            border-radius: 20px;
+            box-shadow: 
+                0 0 15px rgba(255, 215, 0, 0.6),
+                0 0 30px rgba(255, 215, 0, 0.3),
+                inset 0 0 15px rgba(255, 215, 0, 0.2);
         }
 
-        .alert-box.active::before {
-            opacity: 1;
+        /* Inner frame border */
+        .inner-frame {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            bottom: 8px;
+            border: 2px solid #FFD700;
+            border-radius: 16px;
+            box-shadow: 
+                0 0 10px rgba(255, 215, 0, 0.4),
+                inset 0 0 10px rgba(255, 215, 0, 0.1);
         }
 
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* Corner accents */
+        /* Corner accents - angular cuts */
         .corner {
             position: absolute;
-            width: 40px;
-            height: 40px;
+            width: 25px;
+            height: 25px;
             border: 3px solid #FFD700;
             z-index: 10;
         }
 
         .corner.top-left {
-            top: -3px;
-            left: 100px;
+            top: 2px;
+            left: 60px;
             border-right: none;
             border-bottom: none;
-            border-top-left-radius: 10px;
+            border-top-left-radius: 18px;
+            box-shadow: -2px -2px 10px rgba(255, 215, 0, 0.5);
         }
 
         .corner.top-right {
-            top: -3px;
-            right: 100px;
+            top: 2px;
+            right: 60px;
             border-left: none;
             border-bottom: none;
-            border-top-right-radius: 10px;
+            border-top-right-radius: 18px;
+            box-shadow: 2px -2px 10px rgba(255, 215, 0, 0.5);
         }
 
         .corner.bottom-left {
-            bottom: -3px;
-            left: 100px;
+            bottom: 2px;
+            left: 60px;
             border-right: none;
             border-top: none;
-            border-bottom-left-radius: 10px;
+            border-bottom-left-radius: 18px;
+            box-shadow: -2px 2px 10px rgba(255, 215, 0, 0.5);
         }
 
         .corner.bottom-right {
-            bottom: -3px;
-            right: 100px;
+            bottom: 2px;
+            right: 60px;
             border-left: none;
             border-top: none;
-            border-bottom-right-radius: 10px;
+            border-bottom-right-radius: 18px;
+            box-shadow: 2px 2px 10px rgba(255, 215, 0, 0.5);
         }
 
-        /* Top and bottom border lines */
-        .border-line {
+        /* Top and bottom accent lines */
+        .accent-line {
             position: absolute;
             height: 2px;
             background: linear-gradient(90deg, transparent, #FFD700, transparent);
-            opacity: 0.6;
+            opacity: 0.8;
         }
 
-        .border-line.top {
-            top: 20px;
-            left: 150px;
-            right: 150px;
+        .accent-line.top {
+            top: 30px;
+            left: 100px;
+            right: 100px;
         }
 
-        .border-line.bottom {
-            bottom: 20px;
-            left: 150px;
-            right: 150px;
+        .accent-line.bottom {
+            bottom: 30px;
+            left: 100px;
+            right: 100px;
         }
 
         .content {
-            display: flex;
-            align-items: center;
-            padding: 20px 50px;
-            height: 100%;
             position: relative;
             z-index: 5;
+            display: flex;
+            align-items: center;
+            height: 100%;
+            padding: 0 60px;
         }
 
-        .avatar-container {
+        /* Avatar section */
+        .avatar-section {
             position: relative;
-            width: 140px;
-            height: 140px;
-            margin-right: 35px;
+            width: 160px;
+            height: 160px;
+            margin-right: 40px;
             flex-shrink: 0;
         }
 
@@ -158,9 +160,11 @@
             border-radius: 50%;
             background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FFD700 100%);
             padding: 5px;
-            animation: rotate 10s linear infinite;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5),
-                        inset 0 0 20px rgba(255, 215, 0, 0.3);
+            box-shadow: 
+                0 0 20px rgba(255, 215, 0, 0.7),
+                0 0 40px rgba(255, 215, 0, 0.4),
+                inset 0 0 20px rgba(255, 215, 0, 0.5);
+            animation: rotate 15s linear infinite;
         }
 
         @keyframes rotate {
@@ -171,10 +175,10 @@
         .avatar-ring::before {
             content: '';
             position: absolute;
-            top: -5px;
-            left: -5px;
-            right: -5px;
-            bottom: -5px;
+            top: -8px;
+            left: -8px;
+            right: -8px;
+            bottom: -8px;
             border: 2px solid rgba(255, 215, 0, 0.3);
             border-radius: 50%;
             animation: pulse 2s ease-in-out infinite;
@@ -182,171 +186,139 @@
 
         @keyframes pulse {
             0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.5; }
         }
 
         .avatar {
             width: 100%;
             height: 100%;
-            background: #1a1a1a;
+            background: transparent;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 3px solid #1e1e1e;
             overflow: hidden;
-            position: relative;
+            border: 3px solid transparent;
         }
 
         .avatar img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.3s;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
         }
 
-        .alert-box.show .avatar img {
-            animation: avatarPop 0.6s ease-out 0.3s;
-        }
-
-        @keyframes avatarPop {
-            0% { transform: scale(0) rotate(-180deg); }
-            50% { transform: scale(1.2) rotate(10deg); }
-            100% { transform: scale(1) rotate(0deg); }
-        }
-
+        /* Text section */
         .text-section {
             flex: 1;
             color: #FFD700;
         }
 
         .name {
-            font-size: 48px;
+            font-size: 52px;
             font-weight: 900;
             text-transform: uppercase;
             letter-spacing: 3px;
-            margin-bottom: 15px;
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.6),
-                         0 0 40px rgba(255, 215, 0, 0.3);
-            animation: textGlow 2s ease-in-out infinite;
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            margin-bottom: 20px;
+            text-shadow: 
+                0 0 10px rgba(255, 215, 0, 0.8),
+                0 0 20px rgba(255, 215, 0, 0.5),
+                0 0 30px rgba(255, 215, 0, 0.3);
+            background: linear-gradient(135deg, #FFD700 0%, #FFE44D 50%, #FFD700 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+            animation: textGlow 2s ease-in-out infinite;
         }
 
         @keyframes textGlow {
             0%, 100% { 
-                filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.6));
+                filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.8));
             }
             50% { 
-                filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.9));
+                filter: drop-shadow(0 0 20px rgba(255, 215, 0, 1));
             }
         }
 
         .amount-row {
             display: flex;
             align-items: baseline;
-            gap: 10px;
+            gap: 12px;
             margin-bottom: 20px;
         }
 
         .rupee {
-            font-size: 40px;
+            font-size: 42px;
             font-weight: 700;
             color: #FFD700;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-            animation: slideIn 0.6s ease-out 0.5s both;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
         }
 
         .amount {
-            font-size: 64px;
+            font-size: 72px;
             font-weight: 900;
             color: #FFD700;
             line-height: 1;
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
-            animation: slideIn 0.6s ease-out 0.6s both, numberPulse 2s ease-in-out infinite 1s;
+            text-shadow: 
+                0 0 15px rgba(255, 215, 0, 0.8),
+                0 0 30px rgba(255, 215, 0, 0.4);
         }
 
         .text-type {
-            font-size: 32px;
+            font-size: 36px;
             font-weight: 700;
-            color: #FFA500;
+            color: #FFD700;
             text-transform: uppercase;
             letter-spacing: 2px;
-            animation: slideIn 0.6s ease-out 0.7s both;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        @keyframes numberPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
         }
 
         .message {
-            font-size: 22px;
-            color: #d4af37;
-            font-style: italic;
-            letter-spacing: 1.5px;
-            padding-left: 5px;
-            border-left: 4px solid #FFD700;
-            padding-left: 15px;
-            opacity: 0.9;
-            animation: fadeIn 0.6s ease-out 0.8s both;
-            text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+            font-size: 24px;
+            color: #FFE44D;
+            letter-spacing: 2px;
+            text-shadow: 
+                0 0 10px rgba(255, 228, 77, 0.6),
+                0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Equalizer icon */
+        .equalizer {
+            position: absolute;
+            right: 80px;
+            bottom: 60px;
+            display: flex;
+            gap: 5px;
+            align-items: flex-end;
+            height: 50px;
+            opacity: 0;
+            animation: fadeIn 0.6s ease-out 0.8s forwards;
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 0.9;
-                transform: translateY(0);
-            }
+            to { opacity: 1; }
         }
 
-        .sound-icon {
-            position: absolute;
-            right: 50px;
-            bottom: 50px;
-            display: flex;
-            gap: 4px;
-            align-items: flex-end;
-            height: 40px;
-            opacity: 0;
-            animation: fadeIn 0.6s ease-out 0.9s forwards;
-        }
-
-        .sound-bar {
-            width: 6px;
-            background: linear-gradient(to top, #FFD700, #FFA500);
+        .eq-bar {
+            width: 7px;
+            background: linear-gradient(to top, #FFD700, #FFE44D);
             border-radius: 3px;
-            animation: soundWave 1.2s ease-in-out infinite;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            animation: eqWave 1.2s ease-in-out infinite;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
         }
 
-        .sound-bar:nth-child(1) { height: 40%; animation-delay: 0s; }
-        .sound-bar:nth-child(2) { height: 70%; animation-delay: 0.1s; }
-        .sound-bar:nth-child(3) { height: 50%; animation-delay: 0.2s; }
-        .sound-bar:nth-child(4) { height: 90%; animation-delay: 0.3s; }
-        .sound-bar:nth-child(5) { height: 60%; animation-delay: 0.4s; }
+        .eq-bar:nth-child(1) { height: 30%; animation-delay: 0s; }
+        .eq-bar:nth-child(2) { height: 60%; animation-delay: 0.1s; }
+        .eq-bar:nth-child(3) { height: 45%; animation-delay: 0.2s; }
+        .eq-bar:nth-child(4) { height: 80%; animation-delay: 0.3s; }
+        .eq-bar:nth-child(5) { height: 55%; animation-delay: 0.4s; }
+        .eq-bar:nth-child(6) { height: 70%; animation-delay: 0.5s; }
 
-        @keyframes soundWave {
+        @keyframes eqWave {
             0%, 100% { 
-                transform: scaleY(0.5); 
-                opacity: 0.5; 
+                transform: scaleY(0.4); 
+                opacity: 0.6; 
             }
             50% { 
                 transform: scaleY(1); 
@@ -357,15 +329,16 @@
         /* Particle effects */
         .particle {
             position: absolute;
-            width: 4px;
-            height: 4px;
+            width: 5px;
+            height: 5px;
             background: #FFD700;
             border-radius: 50%;
             pointer-events: none;
             opacity: 0;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
         }
 
-        .alert-box.show .particle {
+        .alert-container.show .particle {
             animation: particleFloat 1.5s ease-out forwards;
         }
 
@@ -380,6 +353,39 @@
             }
         }
 
+        /* Glowing edge effects */
+        .glow-edge {
+            position: absolute;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #FFD700, transparent);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+        }
+
+        .glow-edge.top-left {
+            top: -3px;
+            left: 10px;
+            transform: rotate(-45deg);
+        }
+
+        .glow-edge.top-right {
+            top: -3px;
+            right: 10px;
+            transform: rotate(45deg);
+        }
+
+        .glow-edge.bottom-left {
+            bottom: -3px;
+            left: 10px;
+            transform: rotate(45deg);
+        }
+
+        .glow-edge.bottom-right {
+            bottom: -3px;
+            right: 10px;
+            transform: rotate(-45deg);
+        }
+
         /* Demo controls */
         .demo-controls {
             position: fixed;
@@ -388,7 +394,7 @@
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.9);
             padding: 15px 25px;
-            border-radius: 8px;
+            border-radius: 10px;
             display: flex;
             gap: 10px;
             z-index: 1000;
@@ -399,11 +405,11 @@
             padding: 12px 24px;
             background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 900;
             font-size: 14px;
-            color: #1e1e1e;
+            color: #1a1a1a;
             transition: all 0.3s;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -411,39 +417,51 @@
 
         .demo-controls button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
-        }
-
-        .demo-controls button:active {
-            transform: translateY(0);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.5);
         }
     </style>
 </head>
 <body>
-    <div class="alert-box" id="alertBox">
+    <div class="alert-container" id="alertBox">
+        <!-- Frames -->
+        <div class="outer-frame"></div>
+        <div class="inner-frame"></div>
+        
+        <!-- Corners -->
         <div class="corner top-left"></div>
         <div class="corner top-right"></div>
         <div class="corner bottom-left"></div>
         <div class="corner bottom-right"></div>
         
-        <div class="border-line top"></div>
-        <div class="border-line bottom"></div>
+        <!-- Accent lines -->
+        <div class="accent-line top"></div>
+        <div class="accent-line bottom"></div>
+        
+        <!-- Glow edges -->
+        <div class="glow-edge top-left"></div>
+        <div class="glow-edge top-right"></div>
+        <div class="glow-edge bottom-left"></div>
+        <div class="glow-edge bottom-right"></div>
         
         <!-- Particles -->
-        <div class="particle" style="top: 50%; left: 50%; --tx: -100px; --ty: -50px;"></div>
-        <div class="particle" style="top: 50%; left: 50%; --tx: 100px; --ty: -80px;"></div>
-        <div class="particle" style="top: 50%; left: 50%; --tx: 80px; --ty: 60px;"></div>
-        <div class="particle" style="top: 50%; left: 50%; --tx: -80px; --ty: 80px;"></div>
+        <div class="particle" style="top: 50%; left: 50%; --tx: -120px; --ty: -60px;"></div>
+        <div class="particle" style="top: 50%; left: 50%; --tx: 120px; --ty: -80px;"></div>
+        <div class="particle" style="top: 50%; left: 50%; --tx: 100px; --ty: 70px;"></div>
+        <div class="particle" style="top: 50%; left: 50%; --tx: -100px; --ty: 80px;"></div>
         <div class="particle" style="top: 50%; left: 50%; --tx: 0px; --ty: -100px;"></div>
+        <div class="particle" style="top: 50%; left: 50%; --tx: -60px; --ty: -90px;"></div>
+        <div class="particle" style="top: 50%; left: 50%; --tx: 80px; --ty: -50px;"></div>
         
         <div class="content">
-            <div class="avatar-container">
+            <!-- Avatar -->
+            <div class="avatar-section">
                 <div class="avatar-ring"></div>
                 <div class="avatar">
-                    <img src="sidd-logo.jpg" alt="Siddharth Logo" id="avatarImg">
+                    <img src="sidd-logo.jpg" alt="Sidd Logo" id="avatarImg">
                 </div>
             </div>
             
+            <!-- Text -->
             <div class="text-section">
                 <div class="name" id="name">SIDDHARTH</div>
                 <div class="amount-row">
@@ -454,19 +472,23 @@
                 <div class="message" id="message">"SIDD BHAI VANDAL SKIN REVIEW"</div>
             </div>
             
-            <div class="sound-icon">
-                <div class="sound-bar"></div>
-                <div class="sound-bar"></div>
-                <div class="sound-bar"></div>
-                <div class="sound-bar"></div>
-                <div class="sound-bar"></div>
+            <!-- Equalizer -->
+            <div class="equalizer">
+                <div class="eq-bar"></div>
+                <div class="eq-bar"></div>
+                <div class="eq-bar"></div>
+                <div class="eq-bar"></div>
+                <div class="eq-bar"></div>
+                <div class="eq-bar"></div>
             </div>
         </div>
     </div>
 
+    <!-- Demo Controls -->
     <div class="demo-controls">
         <button onclick="showAlert()">🎉 Show Alert</button>
-        <button onclick="hideAlert()">✕ Hide</button>
+        <button onclick="hideAlert()"> Hide</button>
+        <button onclick="randomAlert()">🎲 Random</button>
     </div>
 
     <script>
@@ -479,19 +501,12 @@
                 updateAlert(data);
             }
             
-            // Clear existing timeout
-            if (alertTimeout) {
-                clearTimeout(alertTimeout);
-            }
+            if (alertTimeout) clearTimeout(alertTimeout);
             
-            // Reset animation
             alertBox.classList.remove('show', 'hide');
-            void alertBox.offsetWidth; // Trigger reflow
+            void alertBox.offsetWidth;
+            alertBox.classList.add('show');
             
-            // Show alert
-            alertBox.classList.add('show', 'active');
-            
-            // Auto hide after 6 seconds
             alertTimeout = setTimeout(() => {
                 hideAlert();
             }, 6000);
@@ -499,7 +514,7 @@
 
         function hideAlert() {
             const alertBox = document.getElementById('alertBox');
-            alertBox.classList.remove('show', 'active');
+            alertBox.classList.remove('show');
             alertBox.classList.add('hide');
         }
 
@@ -511,14 +526,12 @@
             if (data.avatar) document.getElementById('avatarImg').src = data.avatar;
         }
 
-        // Listen for messages from Streamlabs/StreamElements
         window.addEventListener('message', (event) => {
             if (event.data && event.data.type === 'alert') {
                 showAlert(event.data);
             }
         });
 
-        // URL parameter support for testing
         window.addEventListener('load', () => {
             const params = new URLSearchParams(window.location.search);
             if (params.has('trigger')) {
@@ -531,33 +544,23 @@
             }
         });
 
-        // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space' && e.target === document.body) {
                 e.preventDefault();
                 showAlert();
             }
-            if (e.code === 'Escape') {
-                hideAlert();
-            }
+            if (e.code === 'Escape') hideAlert();
         });
 
-        // Random demo data
         const demoData = [
             { name: 'SIDDHARTH', amount: '40', message: 'SIDD BHAI VANDAL SKIN REVIEW', textType: 'TEXT' },
-            { name: 'RAJESH KUMAR', amount: '100', message: 'Awesome stream bro! Keep it up!', textType: 'DONATION' },
-            { name: 'PRIYA SHARMA', amount: '500', message: 'Love your content! 🔥', textType: 'SUPERCHAT' },
-            { name: 'ARJUN SINGH', amount: '250', message: 'Best gaming stream ever!', textType: 'DONATION' }
+            { name: 'RAJESH', amount: '100', message: 'AWESOME STREAM BRO!', textType: 'DONATION' },
+            { name: 'PRIYA', amount: '500', message: 'LOVE YOUR CONTENT! 🔥', textType: 'SUPERCHAT' }
         ];
 
         function randomAlert() {
-            const random = demoData[Math.floor(Math.random() * demoData.length)];
-            showAlert(random);
+            showAlert(demoData[Math.floor(Math.random() * demoData.length)]);
         }
-
-        // Add random alert button functionality
-        document.querySelector('.demo-controls').innerHTML += 
-            '<button onclick="randomAlert()">🎲 Random</button>';
     </script>
 </body>
 </html>
