@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OBS Alert Overlay</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: transparent;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .alert-container {
+            position: relative;
+            width: 800px;
+            padding: 30px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border: 3px solid #FFD700;
+            border-radius: 15px;
+            opacity: 0;
+            transform: translateX(-100px);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3),
+                        inset 0 0 20px rgba(255, 215, 0, 0.1);
+        }
+
+        .alert-container.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .alert-container.hide {
+            opacity: 0;
+            transform: translateX(-100px);
+        }
+
+        /* Angular border effect */
+        .alert-container::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: linear-gradient(45deg, #FFD700, #FFA500, #FFD700, #FF8C00);
+            border-radius: 15px;
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.3s;
+        }
+
+        .alert-container.active::before {
+            opacity: 1;
+            animation: borderGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .content-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .avatar-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            flex-shrink: 0;
+        }
+
+        .avatar-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            border-radius: 50%;
+            padding: 4px;
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .avatar {
+            width: 100%;
+            height: 100%;
+            background: #1a1a1a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            border: 3px solid #1a1a1a;
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .text-content {
+            flex: 1;
+            color: #FFD700;
+        }
+
+        .name {
+            font-size: 42px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            animation: textPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes textPulse {
+            0%, 100% { text-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+            50% { text-shadow: 0 0 30px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.4); }
+        }
+
+        .amount-section {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .amount {
+            font-size: 48px;
+            font-weight: 900;
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+        }
+
+        .currency {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .text-label {
+            font-size: 24px;
+            font-weight: 600;
+            color: #FFA500;
+            text-transform: uppercase;
+        }
+
+        .message {
+            font-size: 20px;
+            color: #e0e0e0;
+            font-style: italic;
+            border-left: 4px solid #FFD700;
+            padding-left: 15px;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        .sound-wave {
+            position: absolute;
+            right: 30px;
+            bottom: 30px;
+            display: flex;
+            gap: 4px;
+            align-items: flex-end;
+            height: 40px;
+        }
+
+        .bar {
+            width: 6px;
+            background: linear-gradient(to top, #FFD700, #FFA500);
+            border-radius: 3px;
+            animation: soundWave 1s ease-in-out infinite;
+        }
+
+        .bar:nth-child(1) { height: 20%; animation-delay: 0s; }
+        .bar:nth-child(2) { height: 60%; animation-delay: 0.1s; }
+        .bar:nth-child(3) { height: 40%; animation-delay: 0.2s; }
+        .bar:nth-child(4) { height: 80%; animation-delay: 0.3s; }
+        .bar:nth-child(5) { height: 50%; animation-delay: 0.4s; }
+        .bar:nth-child(6) { height: 90%; animation-delay: 0.5s; }
+
+        @keyframes soundWave {
+            0%, 100% { transform: scaleY(0.5); }
+            50% { transform: scaleY(1); }
+        }
+
+        .corner-accent {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #FFD700;
+        }
+
+        .corner-accent.top-right {
+            top: -3px;
+            right: -3px;
+            border-bottom: none;
+            border-left: none;
+        }
+
+        .corner-accent.bottom-left {
+            bottom: -3px;
+            left: -3px;
+            border-top: none;
+            border-right: none;
+        }
+
+        /* Demo controls */
+        .demo-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .demo-controls button {
+            padding: 10px 20px;
+            background: #FFD700;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #1a1a1a;
+            transition: transform 0.2s;
+        }
+
+        .demo-controls button:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="alert-container" id="alertBox">
+        <div class="corner-accent top-right"></div>
+        <div class="corner-accent bottom-left"></div>
+        
+        <div class="content-wrapper">
+            <div class="avatar-container">
+                <div class="avatar-bg"></div>
+                <div class="avatar" id="avatar">
+                    🐵
+                </div>
+            </div>
+            
+            <div class="text-content">
+                <div class="name" id="name">SIDDHARTH</div>
+                <div class="amount-section">
+                    <span class="currency">₹</span>
+                    <span class="amount" id="amount">40</span>
+                    <span class="text-label" id="textLabel">TEXT</span>
+                </div>
+                <div class="message" id="message">"SIDD BHAI VANDAL SKIN REVIEW"</div>
+            </div>
+        </div>
+        
+        <div class="sound-wave">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+    </div>
+
+    <!-- Demo Controls (Remove in production) -->
+    <div class="demo-controls">
+        <button onclick="triggerAlert()">Trigger Alert</button>
+        <button onclick="randomAlert()">Random Alert</button>
+    </div>
+
+    <script>
+        let alertTimeout;
+
+        function triggerAlert(data = null) {
+            const alertBox = document.getElementById('alertBox');
+            
+            // If data provided, update content
+            if (data) {
+                updateAlertContent(data);
+            }
+            
+            // Clear any existing timeout
+            if (alertTimeout) {
+                clearTimeout(alertTimeout);
+            }
+            
+            // Show alert
+            alertBox.classList.remove('hide');
+            alertBox.classList.add('show', 'active');
+            
+            // Play sound (optional - uncomment if you have a sound file)
+            // const audio = new Audio('/alert-sound.mp3');
+            // audio.play();
+            
+            // Hide after 5 seconds
+            alertTimeout = setTimeout(() => {
+                alertBox.classList.remove('show', 'active');
+                alertBox.classList.add('hide');
+            }, 5000);
+        }
+
+        function updateAlertContent(data) {
+            if (data.name) document.getElementById('name').textContent = data.name;
+            if (data.amount) document.getElementById('amount').textContent = data.amount;
+            if (data.message) document.getElementById('message').textContent = `"${data.message}"`;
+            if (data.avatar) document.getElementById('avatar').innerHTML = `<img src="${data.avatar}" alt="avatar">`;
+        }
+
+        function randomAlert() {
+            const names = ['SIDDHARTH', 'RAJESH', 'ARJUN', 'VIKRAM', 'KARAN'];
+            const messages = [
+                'SIDD BHAI VANDAL SKIN REVIEW',
+                'GREAT STREAM BRO!',
+                'KEEP IT UP!',
+                'AWESOME GAMEPLAY',
+                'NICE PLAY!'
+            ];
+            
+            triggerAlert({
+                name: names[Math.floor(Math.random() * names.length)],
+                amount: Math.floor(Math.random() * 100) + 10,
+                message: messages[Math.floor(Math.random() * messages.length)]
+            });
+        }
+
+        // Listen for messages from OBS or other sources
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'alert') {
+                triggerAlert(event.data);
+            }
+        });
+
+        // Listen for URL parameters (for testing)
+        window.addEventListener('load', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('trigger')) {
+                triggerAlert({
+                    name: urlParams.get('name') || 'SIDDHARTH',
+                    amount: urlParams.get('amount') || '40',
+                    message: urlParams.get('message') || 'SIDD BHAI VANDAL SKIN REVIEW'
+                });
+            }
+        });
+
+        // Keyboard shortcut for testing (press spacebar)
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && e.target === document.body) {
+                e.preventDefault();
+                triggerAlert();
+            }
+        });
+    </script>
+</body>
+</html>
