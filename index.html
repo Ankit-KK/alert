@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>SIDDHARTH | Cyber Gold Donation Alert — OBS Ready</title>
+  <title>SIDDHARTH — Cyber Gold Donation Alert | Sharp Corners | OBS Ready</title>
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      user-select: none; /* cleaner overlay behavior */
+      user-select: none;
     }
 
-    /* FULLY TRANSPARENT BACKGROUND – no grey panel, no solid rectangle, no inner layer */
+    /* FULLY TRANSPARENT BACKGROUND — no solid panels, no grey rectangle */
     body, html {
       background: transparent;
       width: 100%;
@@ -20,36 +20,34 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: 'Orbitron', 'Rajdhani', 'Poppins', 'Segoe UI', system-ui, sans-serif;
+      font-family: 'Orbitron', 'Rajdhani', 'Poppins', 'Segoe UI', system-ui, monospace;
       margin: 0;
       padding: 20px;
     }
 
-    /* ========= MAIN ALERT CONTAINER – ultra-wide, premium gold frame (enhanced) ========= */
+    /* ========= MAIN ALERT CONTAINER – SHARP CORNERS (no rounded corners) ========= */
     .donation-alert {
       position: relative;
       width: 1080px;
       max-width: 92vw;
       min-width: 860px;
-      background: transparent; /* CRITICAL: fully transparent background */
-      border: 2.5px solid rgba(255, 210, 50, 1);
-      border-radius: 32px;
-      /* cinematic gold glow + layered depth */
+      background: transparent; /* CRITICAL: fully transparent */
+      border: 2.5px solid #FFD966;
+      border-radius: 0px;      /* SHARP CORNERS — exactly as requested "sharp like /" */
       box-shadow: 0 0 18px rgba(255, 190, 30, 0.9), 0 0 32px rgba(255, 160, 20, 0.5), inset 0 0 12px rgba(255, 215, 0, 0.35);
-      transition: all 0.25s ease;
       backdrop-filter: none;
       overflow: visible;
       padding: 18px 28px 18px 24px;
     }
 
-    /* enhanced corner design language – futuristic cyber brackets (double layered) */
+    /* SHARP CORNER ACCENTS — angled cyber brackets (no rounding) */
     .donation-alert::before,
     .donation-alert::after {
       content: '';
       position: absolute;
-      width: 22px;
-      height: 22px;
-      border-color: #FFD966;
+      width: 24px;
+      height: 24px;
+      border-color: #FFE484;
       border-style: solid;
       filter: drop-shadow(0 0 6px #ffaa44);
       pointer-events: none;
@@ -58,51 +56,51 @@
       top: -2px;
       left: -2px;
       border-width: 4px 0 0 4px;
-      border-radius: 12px 0 0 0;
+      border-radius: 0px;      /* sharp */
     }
     .donation-alert::after {
       bottom: -2px;
       right: -2px;
       border-width: 0 4px 4px 0;
-      border-radius: 0 0 12px 0;
+      border-radius: 0px;
     }
-    /* additional corner accents for premium symmetry */
+    /* extra corner accents for sharp symmetrical design */
     .donation-alert .corner-accent {
       position: absolute;
-      width: 22px;
-      height: 22px;
-      border-color: #FFE484;
+      width: 24px;
+      height: 24px;
+      border-color: #FFD966;
       border-style: solid;
       filter: drop-shadow(0 0 5px #ffbb44);
       pointer-events: none;
+      border-radius: 0px;
     }
     .donation-alert .corner-accent-1 {
       top: -2px;
       right: -2px;
       border-width: 0 4px 4px 0;
-      border-radius: 0 0 12px 0;
     }
     .donation-alert .corner-accent-2 {
       bottom: -2px;
       left: -2px;
       border-width: 4px 0 0 4px;
-      border-radius: 12px 0 0 0;
     }
-    /* inner glowing edge (no background) */
+
+    /* inner sharp glow (no rounding) */
     .donation-alert .glow-inner {
       position: absolute;
       top: 4px;
       left: 4px;
       right: 4px;
       bottom: 4px;
-      border-radius: 28px;
       border: 1px solid rgba(255, 200, 70, 0.6);
       box-shadow: inset 0 0 16px rgba(255, 190, 0, 0.4);
       pointer-events: none;
       background: transparent;
+      border-radius: 0px;
     }
 
-    /* FLEX LAYOUT: mascot | text block (vertical hierarchy) | equalizer */
+    /* FLEX LAYOUT: mascot | text block | equalizer */
     .alert-inner {
       display: flex;
       align-items: center;
@@ -114,13 +112,12 @@
       z-index: 3;
     }
 
-    /* ========= MASCOT (avatar) – exact scale, premium ring glow ========= */
+    /* ========= MASCOT — enhanced visibility ========= */
     .mascot-wrapper {
       flex-shrink: 0;
       position: relative;
       filter: drop-shadow(0 0 14px #ffbb44);
     }
-    /* holographic ring behind avatar (glowing cyber effect, no background) */
     .mascot-wrapper::before {
       content: '';
       position: absolute;
@@ -128,101 +125,100 @@
       left: -6px;
       right: -6px;
       bottom: -6px;
-      border-radius: 50%;
       background: radial-gradient(circle, rgba(255,200,50,0.3), transparent 70%);
       z-index: -1;
       pointer-events: none;
       animation: pulseRing 2s infinite alternate;
+      border-radius: 0px;    /* mascot ring remains circular, but frame is sharp */
     }
     @keyframes pulseRing {
       0% { opacity: 0.4; transform: scale(0.96); }
-      100% { opacity: 1; transform: scale(1.08); box-shadow: 0 0 28px #ffcc55; }
+      100% { opacity: 1; transform: scale(1.08); }
     }
     .mascot-img {
       width: 96px;
       height: 96px;
       object-fit: cover;
-      border-radius: 50%;
+      border-radius: 50%;    /* avatar stays circular, but outer frame is sharp */
       border: 2.5px solid #FFD966;
       box-shadow: 0 0 22px rgba(255, 200, 0, 0.9), inset 0 0 8px rgba(255, 220, 100, 0.7);
       background: transparent;
       display: block;
-      transition: transform 0.2s;
     }
 
-    /* ========= TEXT AREA – exact vertical hierarchy from reference ========= */
+    /* ========= TEXT AREA — NAME HIGHLY VISIBLE (bright, bold, no rounding) ========= */
     .alert-text {
       flex: 1;
       background: transparent;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       padding-right: 12px;
     }
-    /* username line */
+    /* USERNAME — extremely visible, strong glow & sharp edges */
     .username {
-      font-size: 42px;
+      font-size: 48px;
       font-weight: 900;
-      letter-spacing: 2px;
-      background: linear-gradient(145deg, #FFEDB0 0%, #FFC364 40%, #FFA51E 100%);
+      letter-spacing: 3px;
+      background: linear-gradient(145deg, #FFF2BF, #FFD88C, #FFB84D);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      text-shadow: 0 0 14px rgba(255, 190, 50, 0.8);
+      text-shadow: 0 0 18px rgba(255, 200, 0, 0.9), 0 0 6px rgba(255, 160, 0, 0.6);
       font-family: 'Orbitron', 'Rajdhani', monospace;
       line-height: 1.2;
     }
-    /* amount line (₹40) */
+    /* Amount (₹40) */
     .amount {
-      font-size: 38px;
+      font-size: 40px;
       font-weight: 800;
-      background: linear-gradient(135deg, #FFDF88, #FFB845);
+      background: linear-gradient(135deg, #FFE6A3, #FFC46B);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      text-shadow: 0 0 16px rgba(255, 170, 0, 0.9);
+      text-shadow: 0 0 18px #FFB347;
       letter-spacing: 1px;
       font-family: 'Orbitron', monospace;
       margin-top: -2px;
     }
-    /* "TEXT" label line – distinct cyber style */
+    /* "TEXT" label */
     .text-label {
       font-size: 18px;
-      font-weight: 700;
-      letter-spacing: 3px;
+      font-weight: 800;
+      letter-spacing: 3.5px;
       color: #FFE6B3;
       text-transform: uppercase;
-      text-shadow: 0 0 8px #ffaa44, 0 0 2px #ffcc66;
+      text-shadow: 0 0 12px #ffaa44;
       background: transparent;
       display: inline-block;
-      margin-top: 4px;
+      margin-top: 6px;
       font-family: 'Rajdhani', monospace;
       border-left: 3px solid #FFD966;
       padding-left: 14px;
     }
-    /* quoted message – exact text */
+    /* quoted message */
     .message-quote {
       font-size: 24px;
       font-weight: 600;
       color: #FFF6E0;
-      text-shadow: 0 0 12px #FFB347, 0 1px 2px rgba(0,0,0,0.2);
+      text-shadow: 0 0 14px #FFB347, 0 1px 2px rgba(0,0,0,0.2);
       letter-spacing: 0.4px;
       font-family: 'Poppins', 'Orbitron', sans-serif;
       background: transparent;
-      font-style: normal;
       word-break: break-word;
     }
-    /* wrap spacing for narrow view */
+
+    /* responsiveness: keep name visible */
     @media (max-width: 950px) {
-      .username { font-size: 32px; }
-      .amount { font-size: 28px; }
+      .username { font-size: 36px; letter-spacing: 2px; }
+      .amount { font-size: 30px; }
       .message-quote { font-size: 18px; }
       .text-label { font-size: 15px; }
       .donation-alert { min-width: 680px; padding: 14px 20px; }
       .mascot-img { width: 78px; height: 78px; }
     }
 
-    /* ========= GLOWING EQUALIZER – cyber audio visualizer, refined animation ========= */
+    /* ========= GLOWING EQUALIZER (right side) ========= */
     .equalizer-area {
       flex-shrink: 0;
       display: flex;
@@ -237,13 +233,12 @@
     .eq-bar {
       width: 6px;
       background: linear-gradient(to top, #FFD966, #FFAA33, #FFE484);
-      border-radius: 4px;
+      border-radius: 1px;      /* subtle but sharp enough */
       box-shadow: 0 0 12px #ffb347, 0 0 3px #ffdd88;
       transition: height 0.18s ease;
       animation: cyberPulse 1.3s infinite ease-in-out alternate;
       transform-origin: bottom;
     }
-    /* unique bar heights + varied animations for realistic equalizer */
     .eq-bar:nth-child(1) { height: 20px; animation-duration: 0.9s; }
     .eq-bar:nth-child(2) { height: 36px; animation-duration: 1.2s; animation-delay: 0.1s; }
     .eq-bar:nth-child(3) { height: 28px; animation-duration: 0.8s; animation-delay: 0.2s; }
@@ -257,7 +252,7 @@
       100% { height: 52px; opacity: 1; filter: brightness(1.3) drop-shadow(0 0 6px gold); }
     }
 
-    /* ========= FLOATING PARTICLES & GLOW EFFECTS (premium energy) ========= */
+    /* ========= FLOATING PARTICLES / CYBER DUST ========= */
     .particle-field {
       position: absolute;
       top: 0;
@@ -273,27 +268,26 @@
       background: radial-gradient(circle, #FFE484, #FFB347);
       width: 5px;
       height: 5px;
-      border-radius: 50%;
+      border-radius: 0px;      /* sharp tiny squares for cyber look */
       opacity: 0;
-      filter: blur(0.8px);
+      filter: blur(0.5px);
       animation: driftGlow 5s infinite ease-in-out;
       box-shadow: 0 0 10px #ffcc55;
     }
-    /* dynamic particle placement for cyber dust */
     .particle:nth-child(1) { top: 12%; left: 7%; animation-delay: 0s; width: 6px; height: 6px; }
     .particle:nth-child(2) { top: 78%; left: 94%; animation-delay: 0.8s; width: 4px; height: 4px; }
-    .particle:nth-child(3) { top: 35%; left: 18%; animation-delay: 1.5s; width: 7px; height: 7px; background: #FFD966; }
+    .particle:nth-child(3) { top: 35%; left: 18%; animation-delay: 1.5s; width: 7px; height: 7px; }
     .particle:nth-child(4) { top: 88%; left: 42%; animation-delay: 0.5s; width: 5px; height: 5px; }
     .particle:nth-child(5) { top: 22%; left: 72%; animation-delay: 2.2s; width: 5px; height: 5px; }
     .particle:nth-child(6) { top: 65%; left: 12%; animation-delay: 1.9s; width: 4px; height: 4px; }
     .particle:nth-child(7) { top: 8%; left: 52%; animation-delay: 3s; width: 6px; height: 6px; }
-    .particle:nth-child(8) { top: 92%; left: 76%; animation-delay: 2.5s; width: 5px; height: 5px; filter: blur(1px);}
+    .particle:nth-child(8) { top: 92%; left: 76%; animation-delay: 2.5s; width: 5px; height: 5px; }
     .particle:nth-child(9) { top: 48%; left: 85%; animation-delay: 0.3s; width: 4px; height: 4px; }
     .particle:nth-child(10) { top: 18%; left: 33%; animation-delay: 3.2s; width: 6px; height: 6px; }
-    .particle:nth-child(11) { top: 72%; left: 64%; animation-delay: 1.1s; width: 5px; background: #FFE28C; }
-    .particle:nth-child(12) { top: 40%; left: 96%; animation-delay: 0.9s; width: 5px; height: 5px; }
+    .particle:nth-child(11) { top: 72%; left: 64%; animation-delay: 1.1s; width: 5px; }
+    .particle:nth-child(12) { top: 40%; left: 96%; animation-delay: 0.9s; width: 5px; }
     .particle:nth-child(13) { top: 55%; left: 5%; animation-delay: 2.8s; width: 4px; }
-    
+
     @keyframes driftGlow {
       0% { opacity: 0; transform: translateY(0px) scale(0.6); }
       25% { opacity: 0.9; transform: translateY(-12px) scale(1.2); }
@@ -301,7 +295,7 @@
       100% { opacity: 0; transform: translateY(20px) scale(0.4); }
     }
 
-    /* ========= ADDITIONAL PREMIUM FINISH: scan shimmer & futuristic light sweep ========= */
+    /* ========= GOLD SHIMMER / SCANLINE (sharp edge) ========= */
     .donation-alert::after {
       content: '';
       position: absolute;
@@ -309,11 +303,12 @@
       left: -20%;
       width: 40%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.08), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.1), transparent);
       transform: skewX(-20deg);
       pointer-events: none;
       z-index: 2;
       animation: goldShine 5s infinite linear;
+      border-radius: 0px;
     }
     @keyframes goldShine {
       0% { left: -30%; opacity: 0; }
@@ -322,7 +317,16 @@
       100% { left: 110%; opacity: 0; }
     }
 
-    /* sharpness + vector-like quality */
+    /* additional sharp frame pulse for intensity */
+    .donation-alert {
+      animation: frameGlowPulse 2.4s infinite alternate;
+    }
+    @keyframes frameGlowPulse {
+      0% { box-shadow: 0 0 12px rgba(255, 200, 30, 0.8), 0 0 26px rgba(255, 160, 20, 0.5), inset 0 0 12px rgba(255,215,0,0.2); border-color: rgba(255, 210, 60, 0.95);}
+      100% { box-shadow: 0 0 30px rgba(255, 220, 60, 1), 0 0 48px rgba(255, 170, 0, 0.7), inset 0 0 20px rgba(255, 220, 50, 0.5); border-color: #FFDE88;}
+    }
+
+    /* ULTRA CLEAN VECTOR SHARPNESS */
     .username, .amount, .message-quote, .text-label {
       font-smoothing: antialiased;
       -webkit-font-smoothing: antialiased;
@@ -330,13 +334,7 @@
       backface-visibility: hidden;
     }
 
-    /* ultra HD responsiveness & edge sharpness */
-    .donation-alert {
-      transform: translateZ(0);
-      will-change: box-shadow;
-    }
-
-    /* responsive stacking for small screens (keeps proportions) */
+    /* RESPONSIVE */
     @media (max-width: 860px) {
       .donation-alert {
         min-width: 94vw;
@@ -346,11 +344,11 @@
         gap: 14px;
       }
       .username {
-        font-size: 28px;
-        line-height: 1.2;
+        font-size: 30px;
+        letter-spacing: 1.5px;
       }
       .amount {
-        font-size: 24px;
+        font-size: 26px;
       }
       .message-quote {
         font-size: 16px;
@@ -371,26 +369,28 @@
       }
     }
 
-    /* complete transparency enforcement – no inner opaque layers */
+    /* FULL TRANSPARENCY ENFORCEMENT */
     .donation-alert, .alert-inner, .alert-text, .mascot-wrapper, .equalizer-area,
-    .name-block, .message-block, .donation-alert * {
+    .donation-alert * {
       background-color: transparent !important;
     }
-    /* fallback for the ring */
     .mascot-wrapper::before {
       background: radial-gradient(circle, rgba(255,200,50,0.25), transparent 70%);
+    }
+    body, html, .donation-alert, .glow-inner, .corner-accent {
+      background: transparent;
     }
   </style>
 </head>
 <body>
   <div class="donation-alert">
-    <!-- double premium inner glow layer (no solid) -->
+    <!-- Inner sharp glow layer -->
     <div class="glow-inner"></div>
-    <!-- additional corner elements matching the same corner design language -->
+    <!-- Corner accents (sharp) -->
     <div class="corner-accent corner-accent-1"></div>
     <div class="corner-accent corner-accent-2"></div>
 
-    <!-- floating particles: futuristic cyber dust (only visible particles + glow) -->
+    <!-- Particles: only visible glow effects -->
     <div class="particle-field">
       <div class="particle"></div><div class="particle"></div><div class="particle"></div>
       <div class="particle"></div><div class="particle"></div><div class="particle"></div>
@@ -399,14 +399,14 @@
       <div class="particle"></div>
     </div>
 
-    <!-- MAIN LAYOUT: mascot + vertical text (exact reference hierarchy) + equalizer -->
+    <!-- MAIN LAYOUT: mascot + visible text hierarchy + equalizer -->
     <div class="alert-inner">
-      <!-- MASCOT / AVATAR (sidd-logo.jpg at root, perfect scale) -->
+      <!-- MASCOT (sidd-logo.jpg at root) -->
       <div class="mascot-wrapper">
-        <img src="sidd-logo.jpg" alt="Siddharth" class="mascot-img" onerror="this.onerror=null; this.style.border='2px solid #FFD966'; this.style.background='radial-gradient(circle, #201e1a, #0a0804)'; this.style.boxShadow='0 0 20px #ffaa44';">
+        <img src="sidd-logo.jpg" alt="Siddharth" class="mascot-img" onerror="this.onerror=null; this.style.border='2px solid #FFD966'; this.style.background='radial-gradient(circle, #1f1b12, #0a0804)'; this.style.boxShadow='0 0 20px #ffaa44';">
       </div>
 
-      <!-- TEXT BLOCK – exact vertical arrangement: SIDDHARTH / ₹40 / TEXT label / message -->
+      <!-- TEXT BLOCK: username highly visible + amount + label + message -->
       <div class="alert-text">
         <div class="username">SIDDHARTH</div>
         <div class="amount">₹40</div>
@@ -414,7 +414,7 @@
         <div class="message-quote">“SIDD BHAI VANDAL SKIN REVIEW”</div>
       </div>
 
-      <!-- GLOWING EQUALIZER (right side, same placement, enhanced bars) -->
+      <!-- GLOWING EQUALIZER (right side) -->
       <div class="equalizer-area">
         <div class="eq-bar"></div>
         <div class="eq-bar"></div>
@@ -425,56 +425,7 @@
         <div class="eq-bar"></div>
       </div>
     </div>
-    <!-- no solid background, no grey panel – only frame, mascot, text, glow effects, equalizer, particles -->
+    <!-- NO BACKGROUNDS — only frame, mascot, text, equalizer, particles -->
   </div>
-
-  <!-- additional ultra-sharp vector polish + cinematic contrast -->
-  <style>
-    /* intensify gold gradients & neon atmosphere */
-    .username {
-      background: linear-gradient(125deg, #FFF2BF, #FFD58C, #FFB347);
-      -webkit-background-clip: text;
-      background-clip: text;
-      text-shadow: 0 0 16px rgba(255, 190, 50, 0.8);
-    }
-    .amount {
-      background: linear-gradient(115deg, #FFE6A3, #FFC46B);
-      -webkit-background-clip: text;
-      background-clip: text;
-      text-shadow: 0 0 14px #FFB347;
-    }
-    .message-quote {
-      text-shadow: 0 0 12px #ffbb44, 0 1px 3px rgba(0,0,0,0.3);
-      font-weight: 500;
-    }
-    .text-label {
-      font-weight: 800;
-      text-shadow: 0 0 6px #ffaa44;
-      border-left: 3px solid #FFDE88;
-    }
-    /* frame intensity animation: immersive pulse */
-    .donation-alert {
-      animation: frameGlowPulse 2.4s infinite alternate;
-    }
-    @keyframes frameGlowPulse {
-      0% { box-shadow: 0 0 12px rgba(255, 200, 30, 0.7), 0 0 26px rgba(255, 160, 20, 0.4), inset 0 0 12px rgba(255,215,0,0.2); border-color: rgba(255, 210, 60, 0.95);}
-      100% { box-shadow: 0 0 26px rgba(255, 220, 60, 1), 0 0 44px rgba(255, 170, 0, 0.7), inset 0 0 20px rgba(255, 220, 50, 0.5); border-color: #FFDE88;}
-    }
-    /* ensure all containers stay fully transparent */
-    body, div, section, .donation-alert, .alert-inner, .alert-text, .mascot-wrapper, .equalizer-area {
-      background: transparent !important;
-    }
-    /* remove any accidental backgrounds from pseudo-elements */
-    .donation-alert::before, .donation-alert::after, .corner-accent, .glow-inner {
-      background: transparent;
-    }
-    .mascot-img {
-      background: transparent !important;
-    }
-    /* high contrast rendering for streaming overlays */
-    html {
-      background: transparent;
-    }
-  </style>
 </body>
 </html>
