@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OBS Alert - Premium Gold & White</title>
+    <title>OBS Alert - Premium Gold</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
 
         body {
             background: transparent;
-            font-family: 'Segoe UI', 'Roboto', Helvetica, sans-serif;
+            font-family: 'Arial Black', 'Segoe UI Black', sans-serif;
             overflow: hidden;
             display: flex;
             align-items: center;
@@ -23,77 +23,110 @@
 
         .alert-container {
             position: relative;
-            width: 1100px;
-            height: 220px;
-            /* Darker background for better contrast */
-            background: rgba(15, 15, 15, 0.95);
-            border: 2px solid #FFD700;
-            border-radius: 12px;
+            width: 1200px;
+            height: 240px;
             opacity: 0;
-            transform: translateX(-30px);
-            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 
-                0 0 20px rgba(0, 0, 0, 0.8),
-                inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+            transform: translateX(-50px) scale(0.95);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
 
         .alert-container.show {
             opacity: 1;
-            transform: translateX(0);
+            transform: translateX(0) scale(1);
         }
 
         .alert-container.hide {
             opacity: 0;
-            transform: translateX(-30px);
+            transform: translateX(-50px) scale(0.95);
         }
 
-        /* Subtle tech corners instead of heavy glowing ones */
-        .corner {
+        /* Outer frame border - reduced glow for better contrast */
+        .outer-frame {
             position: absolute;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #FFD700;
-            z-index: 10;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 3px solid #FFD700;
+            border-radius: 20px;
+            box-shadow: 
+                0 0 8px rgba(255, 215, 0, 0.4),
+                inset 0 0 8px rgba(255, 215, 0, 0.1);
         }
 
-        .corner.top-left {
-            top: -2px;
-            left: 40px;
-            border-right: none;
-            border-bottom: none;
-        }
-
-        .corner.top-right {
-            top: -2px;
-            right: 40px;
-            border-left: none;
-            border-bottom: none;
-        }
-
-        .corner.bottom-left {
-            bottom: -2px;
-            left: 40px;
-            border-right: none;
-            border-top: none;
-        }
-
-        .corner.bottom-right {
-            bottom: -2px;
-            right: 40px;
-            border-left: none;
-            border-top: none;
-        }
-
-        /* Inner subtle border line */
-        .inner-line {
+        /* Inner frame border */
+        .inner-frame {
             position: absolute;
             top: 8px;
             left: 8px;
             right: 8px;
             bottom: 8px;
-            border: 1px solid rgba(255, 215, 0, 0.2);
-            border-radius: 8px;
-            pointer-events: none;
+            border: 2px solid #FFD700;
+            border-radius: 16px;
+            box-shadow: 
+                0 0 5px rgba(255, 215, 0, 0.3),
+                inset 0 0 5px rgba(255, 215, 0, 0.1);
+        }
+
+        /* Corner accents */
+        .corner {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            border: 3px solid #FFD700;
+            z-index: 10;
+        }
+
+        .corner.top-left {
+            top: 2px;
+            left: 60px;
+            border-right: none;
+            border-bottom: none;
+            border-top-left-radius: 18px;
+        }
+
+        .corner.top-right {
+            top: 2px;
+            right: 60px;
+            border-left: none;
+            border-bottom: none;
+            border-top-right-radius: 18px;
+        }
+
+        .corner.bottom-left {
+            bottom: 2px;
+            left: 60px;
+            border-right: none;
+            border-top: none;
+            border-bottom-left-radius: 18px;
+        }
+
+        .corner.bottom-right {
+            bottom: 2px;
+            right: 60px;
+            border-left: none;
+            border-top: none;
+            border-bottom-right-radius: 18px;
+        }
+
+        /* Top and bottom accent lines */
+        .accent-line {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #FFD700, transparent);
+            opacity: 0.6;
+        }
+
+        .accent-line.top {
+            top: 30px;
+            left: 100px;
+            right: 100px;
+        }
+
+        .accent-line.bottom {
+            bottom: 30px;
+            left: 100px;
+            right: 100px;
         }
 
         .content {
@@ -102,15 +135,15 @@
             display: flex;
             align-items: center;
             height: 100%;
-            padding: 0 50px;
-            gap: 30px;
+            padding: 0 60px;
         }
 
-        /* Avatar section - Cleaner look */
+        /* Avatar section */
         .avatar-section {
             position: relative;
-            width: 150px;
-            height: 150px;
+            width: 160px;
+            height: 160px;
+            margin-right: 40px;
             flex-shrink: 0;
         }
 
@@ -118,37 +151,46 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            border: 3px solid #FFD700;
+            border: 4px solid #FFD700;
             border-radius: 50%;
-            background: transparent;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FFD700 100%);
+            padding: 5px;
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
+            animation: rotate 15s linear infinite;
         }
 
-        /* Rotating dashed ring for tech feel */
-        .avatar-ring::after {
-            content: '';
-            position: absolute;
-            top: -6px;
-            left: -6px;
-            right: -6px;
-            bottom: -6px;
-            border: 2px dashed rgba(255, 215, 0, 0.4);
-            border-radius: 50%;
-            animation: spin 20s linear infinite;
-        }
-
-        @keyframes spin {
+        @keyframes rotate {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
+        }
+
+        .avatar-ring::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            right: -8px;
+            bottom: -8px;
+            border: 2px solid rgba(255, 215, 0, 0.2);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.5; }
         }
 
         .avatar {
             width: 100%;
             height: 100%;
+            background: transparent;
             border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             overflow: hidden;
-            border: 2px solid #1a1a1a;
-            background: #000;
+            border: 3px solid transparent;
         }
 
         .avatar img {
@@ -157,76 +199,78 @@
             object-fit: cover;
         }
 
-        /* Text section - High Contrast */
+        /* Text section - Higher contrast, less gold wash */
         .text-section {
             flex: 1;
         }
 
         .name {
-            font-size: 48px;
-            font-weight: 800;
+            font-size: 52px;
+            font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 8px;
-            /* Pure Gold for Name */
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            /* Crisp gold with strong dark shadow for contrast */
             color: #FFD700;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+            background: linear-gradient(135deg, #FFD700 0%, #FFE44D 50%, #FFD700 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
         }
 
         .amount-row {
             display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 12px;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 20px;
         }
 
         .rupee {
-            font-size: 36px;
+            font-size: 42px;
             font-weight: 700;
             color: #FFD700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
         }
 
         .amount {
-            font-size: 60px;
+            font-size: 72px;
             font-weight: 900;
             color: #FFD700;
             line-height: 1;
-            letter-spacing: -1px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
         }
 
-        /* White text for "TEXT" label */
+        /* Switched to white for better contrast */
         .text-type {
-            font-size: 28px;
-            font-weight: 600;
+            font-size: 36px;
+            font-weight: 700;
             color: #FFFFFF;
             text-transform: uppercase;
-            opacity: 0.9;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
         }
 
-        /* White text for Message - Much better contrast */
+        /* Switched to white for better contrast */
         .message {
-            font-size: 22px;
-            color: #E0E0E0;
-            font-weight: 500;
-            letter-spacing: 1px;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+            font-size: 24px;
+            color: #FFFFFF;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
         }
 
-        .message span {
-            color: #FFD700; /* Highlight the quotes in gold? Or keep white. Let's keep white for clean look. */
-        }
-
-        /* Equalizer - Minimalist */
+        /* Equalizer icon - less glow, cleaner */
         .equalizer {
             position: absolute;
-            right: 40px;
-            bottom: 45px;
+            right: 80px;
+            bottom: 60px;
             display: flex;
-            gap: 4px;
+            gap: 5px;
             align-items: flex-end;
-            height: 40px;
+            height: 50px;
             opacity: 0;
-            animation: fadeIn 0.5s ease-out 0.4s forwards;
+            animation: fadeIn 0.6s ease-out 0.8s forwards;
         }
 
         @keyframes fadeIn {
@@ -234,21 +278,29 @@
         }
 
         .eq-bar {
-            width: 5px;
+            width: 7px;
             background: #FFD700;
-            border-radius: 2px;
-            animation: eqWave 1s ease-in-out infinite;
+            border-radius: 3px;
+            animation: eqWave 1.2s ease-in-out infinite;
+            box-shadow: 0 0 5px rgba(255, 215, 0, 0.4);
         }
 
         .eq-bar:nth-child(1) { height: 30%; animation-delay: 0s; }
         .eq-bar:nth-child(2) { height: 60%; animation-delay: 0.1s; }
-        .eq-bar:nth-child(3) { height: 40%; animation-delay: 0.2s; }
+        .eq-bar:nth-child(3) { height: 45%; animation-delay: 0.2s; }
         .eq-bar:nth-child(4) { height: 80%; animation-delay: 0.3s; }
-        .eq-bar:nth-child(5) { height: 50%; animation-delay: 0.4s; }
+        .eq-bar:nth-child(5) { height: 55%; animation-delay: 0.4s; }
+        .eq-bar:nth-child(6) { height: 70%; animation-delay: 0.5s; }
 
         @keyframes eqWave {
-            0%, 100% { transform: scaleY(0.5); opacity: 0.5; }
-            50% { transform: scaleY(1); opacity: 1; }
+            0%, 100% { 
+                transform: scaleY(0.4); 
+                opacity: 0.6; 
+            }
+            50% { 
+                transform: scaleY(1); 
+                opacity: 1; 
+            }
         }
 
         /* Demo controls */
@@ -257,47 +309,61 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
-            padding: 10px 20px;
-            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 15px 25px;
+            border-radius: 10px;
             display: flex;
             gap: 10px;
             z-index: 1000;
-            border: 1px solid #333;
+            border: 2px solid #FFD700;
         }
 
         .demo-controls button {
-            padding: 8px 16px;
-            background: #FFD700;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
-            font-weight: bold;
-            font-size: 13px;
+            font-weight: 900;
+            font-size: 14px;
             color: #1a1a1a;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .demo-controls button:hover {
-            background: #FFE44D;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.3);
         }
     </style>
 </head>
 <body>
     <div class="alert-container" id="alertBox">
-        <div class="inner-line"></div>
+        <!-- Frames -->
+        <div class="outer-frame"></div>
+        <div class="inner-frame"></div>
+        
+        <!-- Corners -->
         <div class="corner top-left"></div>
         <div class="corner top-right"></div>
         <div class="corner bottom-left"></div>
         <div class="corner bottom-right"></div>
         
+        <!-- Accent lines -->
+        <div class="accent-line top"></div>
+        <div class="accent-line bottom"></div>
+        
         <div class="content">
+            <!-- Avatar -->
             <div class="avatar-section">
                 <div class="avatar-ring"></div>
                 <div class="avatar">
-                    <img src="sidd-logo.jpg" alt="Logo" id="avatarImg">
+                    <img src="sidd-logo.jpg" alt="Sidd Logo" id="avatarImg">
                 </div>
             </div>
             
+            <!-- Text -->
             <div class="text-section">
                 <div class="name" id="name">SIDDHARTH</div>
                 <div class="amount-row">
@@ -308,7 +374,9 @@
                 <div class="message" id="message">"SIDD BHAI VANDAL SKIN REVIEW"</div>
             </div>
             
+            <!-- Equalizer -->
             <div class="equalizer">
+                <div class="eq-bar"></div>
                 <div class="eq-bar"></div>
                 <div class="eq-bar"></div>
                 <div class="eq-bar"></div>
@@ -318,9 +386,11 @@
         </div>
     </div>
 
+    <!-- Demo Controls -->
     <div class="demo-controls">
-        <button onclick="showAlert()">Trigger Alert</button>
-        <button onclick="randomAlert()">Random</button>
+        <button onclick="showAlert()"> Show Alert</button>
+        <button onclick="hideAlert()">✕ Hide</button>
+        <button onclick="randomAlert()"> Random</button>
     </div>
 
     <script>
@@ -329,17 +399,17 @@
         function showAlert(data = null) {
             const alertBox = document.getElementById('alertBox');
             if (data) updateAlert(data);
-            
             if (alertTimeout) clearTimeout(alertTimeout);
-            
             alertBox.classList.remove('show', 'hide');
             void alertBox.offsetWidth;
             alertBox.classList.add('show');
-            
-            alertTimeout = setTimeout(() => {
-                alertBox.classList.remove('show');
-                alertBox.classList.add('hide');
-            }, 5000);
+            alertTimeout = setTimeout(() => hideAlert(), 6000);
+        }
+
+        function hideAlert() {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.classList.remove('show');
+            alertBox.classList.add('hide');
         }
 
         function updateAlert(data) {
@@ -347,11 +417,23 @@
             if (data.amount) document.getElementById('amount').textContent = data.amount;
             if (data.message) document.getElementById('message').textContent = `"${data.message}"`;
             if (data.textType) document.getElementById('textType').textContent = data.textType;
+            if (data.avatar) document.getElementById('avatarImg').src = data.avatar;
         }
+
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'alert') showAlert(event.data);
+        });
 
         window.addEventListener('load', () => {
             const params = new URLSearchParams(window.location.search);
-            if (params.has('trigger')) showAlert();
+            if (params.has('trigger')) {
+                showAlert({
+                    name: params.get('name') || 'SIDDHARTH',
+                    amount: params.get('amount') || '40',
+                    message: params.get('message') || 'SIDD BHAI VANDAL SKIN REVIEW',
+                    textType: params.get('type') || 'TEXT'
+                });
+            }
         });
 
         document.addEventListener('keydown', (e) => {
@@ -359,16 +441,17 @@
                 e.preventDefault();
                 showAlert();
             }
+            if (e.code === 'Escape') hideAlert();
         });
 
-        const randoms = [
+        const demoData = [
             { name: 'SIDDHARTH', amount: '40', message: 'SIDD BHAI VANDAL SKIN REVIEW', textType: 'TEXT' },
-            { name: 'RAJESH', amount: '100', message: 'AWESOME GAMEPLAY', textType: 'DONATION' },
-            { name: 'AMIT', amount: '500', message: 'GG WP BRO', textType: 'SUPERCHAT' }
+            { name: 'RAJESH', amount: '100', message: 'AWESOME STREAM BRO!', textType: 'DONATION' },
+            { name: 'PRIYA', amount: '500', message: 'LOVE YOUR CONTENT! 🔥', textType: 'SUPERCHAT' }
         ];
 
         function randomAlert() {
-            showAlert(randoms[Math.floor(Math.random() * randoms.length)]);
+            showAlert(demoData[Math.floor(Math.random() * demoData.length)]);
         }
     </script>
 </body>
