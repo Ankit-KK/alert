@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>SIDD Test Overlay</title>
+  <title>SIDDHARTH — Donation Alert | OBS Ready</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; user-select:none; }
 
@@ -22,11 +22,8 @@
 
     /* ─────────────────────────────────────────
        ENTRY ANIMATION STATES
-       .entering  → plays intro sequence
-       .leaving   → plays outro
     ───────────────────────────────────────── */
 
-    /* OUTER WRAP — slides up from below on entry */
     .outer-wrap {
       position: relative;
       display: inline-block;
@@ -48,35 +45,6 @@
       100% { opacity:0; transform: translateY(-28px) scale(0.95); }
     }
 
-    /* GLOW RING — fades in slightly after card */
-    .glow-ring {
-      position: absolute;
-      inset: -4px;
-      clip-path: polygon(
-        22px 0, calc(100% - 22px) 0, 100% 22px,
-        100% calc(100% - 22px), calc(100% - 22px) 100%,
-        22px 100%, 0 calc(100% - 22px), 0 22px
-      );
-      background: transparent;
-      opacity: 0;
-      box-shadow:
-        0 0 0 2px #FFD966,
-        0 0 18px 4px rgba(255,190,30,0.75),
-        0 0 40px 8px rgba(255,150,20,0.45);
-      pointer-events: none;
-      z-index: 1;
-    }
-    .entering .glow-ring {
-      animation: ringFadeIn 0.4s ease 0.4s forwards, ringPulse 2.4s infinite alternate 0.8s;
-    }
-    @keyframes ringFadeIn {
-      to { opacity: 1; }
-    }
-    @keyframes ringPulse {
-      0%   { box-shadow: 0 0 0 2px #FFD966,   0 0 14px 3px  rgba(255,190,30,0.6),  0 0 30px 6px  rgba(255,140,0,0.3); }
-      100% { box-shadow: 0 0 0 2.5px #FFE484, 0 0 26px 6px  rgba(255,220,60,0.95), 0 0 52px 12px rgba(255,170,0,0.55); }
-    }
-
     /* CARD */
     .card {
       position: relative;
@@ -93,7 +61,7 @@
       overflow: hidden;
     }
 
-    /* GOLD FLASH — full-card burst on entry */
+    /* GOLD FLASH */
     .flash {
       position: absolute;
       inset: 0;
@@ -111,7 +79,7 @@
       100% { opacity: 0;   transform: scale(1.2); }
     }
 
-    /* SVG BORDER — stroke draws in on entry */
+    /* SVG BORDER */
     .border-svg {
       position: absolute;
       inset: 0;
@@ -153,7 +121,7 @@
       z-index: 3;
     }
 
-    /* CORNER BRACKETS — each slides in from its corner */
+    /* CORNER BRACKETS */
     .cb {
       position: absolute;
       width: 26px; height: 26px;
@@ -178,7 +146,7 @@
       100% { opacity:1; transform: translate(0,0); }
     }
 
-    /* SCAN SHIMMER — loops after entry */
+    /* SCAN SHIMMER */
     .scan {
       position: absolute;
       top:0; left:-40%;
@@ -236,7 +204,7 @@
       z-index: 5;
     }
 
-    /* MASCOT — pops in with overshoot bounce */
+    /* MASCOT */
     .mascot-wrap {
       flex-shrink: 0;
       position: relative;
@@ -275,7 +243,7 @@
       background:radial-gradient(circle at 35% 30%, #a06a10, #5a3800);
     }
 
-    /* TEXT BLOCK — children stagger in from left */
+    /* TEXT BLOCK */
     .text-block {
       flex: 1;
       display: flex;
@@ -294,54 +262,75 @@
       100% { opacity:1; transform:translateX(0); }
     }
 
+    /* Username — Syne, no stroke */
     .username {
-      font-family:'Syne',sans-serif; font-size:40px; font-weight:800;
-      letter-spacing:3px; color:#FFD340;
+      font-family: 'Syne', sans-serif;
+      font-size: 40px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      color: #FFD340;
       text-shadow:
-        0 2px 4px rgba(0,0,0,0.95),
-        0 0 12px rgba(255,200,30,1),
-        0 0 28px rgba(255,160,0,0.8),
-        -1px -1px 0 rgba(0,0,0,0.8),
-         1px  1px 0 rgba(0,0,0,0.8);
-      line-height:1.1;
+        0 2px 8px rgba(0,0,0,0.9),
+        0 0 18px rgba(255,200,30,0.85),
+        0 0 36px rgba(255,150,0,0.5);
+      line-height: 1.1;
     }
 
     .amount-row {
-      display:flex; align-items:baseline; gap:16px; margin-top:2px;
-    }
-    .amount {
-      font-family:'Syne',sans-serif; font-size:40px; font-weight:800;
-      color:#FFD340; letter-spacing:1px; line-height:1.1;
-      text-shadow:
-        0 2px 4px rgba(0,0,0,0.95),
-        0 0 12px rgba(255,200,30,1),
-        0 0 28px rgba(255,160,0,0.8),
-        -1px -1px 0 rgba(0,0,0,0.8),
-         1px  1px 0 rgba(0,0,0,0.8);
-    }
-    .text-badge {
-      font-family:'Syne',sans-serif; font-size:24px; font-weight:700;
-      letter-spacing:5px; color:#FFD340; text-transform:uppercase;
-      text-shadow:
-        0 2px 4px rgba(0,0,0,0.95),
-        0 0 10px rgba(255,185,30,1),
-        -1px -1px 0 rgba(0,0,0,0.8),
-         1px  1px 0 rgba(0,0,0,0.8);
-    }
-    .message {
-      font-family:'Syne',sans-serif; font-size:22px; font-weight:600;
-      color:#FFF0DC; letter-spacing:0.3px; margin-top:6px;
-      text-shadow:
-        0 2px 4px rgba(0,0,0,0.95),
-        0 0 12px rgba(255,165,55,0.7),
-        -1px -1px 0 rgba(0,0,0,0.9),
-         1px  1px 0 rgba(0,0,0,0.9);
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin-top: 2px;
     }
 
-    /* EQUALIZER — bars grow up after text */
+    /* Amount — Syncopate for the number */
+    .amount {
+      font-family: 'Syncopate', sans-serif;
+      font-size: 38px;
+      font-weight: 700;
+      color: #FFD340;
+      letter-spacing: 2px;
+      line-height: 1.1;
+      text-shadow:
+        0 2px 8px rgba(0,0,0,0.9),
+        0 0 18px rgba(255,200,30,0.85),
+        0 0 36px rgba(255,150,0,0.5);
+    }
+
+    /* Badge — Syncopate for the label too, feels cohesive */
+    .text-badge {
+      font-family: 'Syncopate', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 5px;
+      color: #FFD340;
+      text-transform: uppercase;
+      text-shadow:
+        0 2px 6px rgba(0,0,0,0.85),
+        0 0 12px rgba(255,185,30,0.8);
+    }
+
+    /* Message — Syne, warm cream, no stroke */
+    .message {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: #FFF0DC;
+      letter-spacing: 0.3px;
+      margin-top: 6px;
+      text-shadow:
+        0 2px 6px rgba(0,0,0,0.85),
+        0 0 14px rgba(255,160,50,0.55);
+    }
+
+    /* EQUALIZER */
     .eq {
-      flex-shrink:0; display:flex; align-items:flex-end;
-      gap:5px; height:64px; padding-right:4px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: flex-end;
+      gap: 5px;
+      height: 64px;
+      padding-right: 4px;
       opacity: 0;
     }
     .entering .eq {
@@ -351,10 +340,10 @@
       to { opacity:1; }
     }
     .bar {
-      width:7px;
-      background:linear-gradient(to top, #c97e00, #FFD340, #FFF5AA);
-      border-radius:2px 2px 1px 1px;
-      box-shadow:0 0 8px rgba(255,190,30,0.8);
+      width: 7px;
+      background: linear-gradient(to top, #c97e00, #FFD340, #FFF5AA);
+      border-radius: 2px 2px 1px 1px;
+      box-shadow: 0 0 8px rgba(255,190,30,0.8);
     }
     .entering .bar { animation: eqAnim 1s infinite ease-in-out alternate; }
     .bar:nth-child(1) { animation-duration:0.7s;  animation-delay:1.0s; }
@@ -372,8 +361,9 @@
     /* ── RESPONSIVE ── */
     @media (max-width:700px) {
       .card { padding:14px 16px; }
-      .username, .amount { font-size:28px; letter-spacing:2px; }
-      .text-badge { font-size:18px; }
+      .username { font-size:28px; letter-spacing:2px; }
+      .amount   { font-size:28px; }
+      .text-badge { font-size:10px; }
       .message { font-size:16px; }
       .mascot-wrap { width:78px; height:78px; }
       .eq { height:48px; }
@@ -383,14 +373,10 @@
 <body>
   <div class="outer-wrap" id="alertWrap">
 
-    <div class="glow-ring"></div>
-
     <div class="card">
 
-      <!-- Gold burst flash on entry -->
       <div class="flash"></div>
 
-      <!-- SVG border with draw-in animation -->
       <svg class="border-svg" viewBox="0 0 900 144" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <filter id="gf" x="-20%" y="-20%" width="140%" height="140%">
@@ -408,7 +394,6 @@
         />
       </svg>
 
-      <!-- Corner brackets -->
       <div class="cb cb-tl"></div>
       <div class="cb cb-tr"></div>
       <div class="cb cb-bl"></div>
@@ -417,7 +402,6 @@
       <div class="inner-bevel"></div>
       <div class="scan"></div>
 
-      <!-- Particles -->
       <div class="pf">
         <div class="p"></div><div class="p"></div><div class="p"></div>
         <div class="p"></div><div class="p"></div><div class="p"></div>
@@ -425,10 +409,8 @@
         <div class="p"></div>
       </div>
 
-      <!-- MAIN LAYOUT -->
       <div class="layout">
 
-        <!-- Mascot -->
         <div class="mascot-wrap">
           <div class="mascot-bg"></div>
           <img src="sidd-logo.jpg" alt="Siddharth" class="mascot-img"
@@ -436,7 +418,6 @@
           <div class="mascot-fallback">🐒</div>
         </div>
 
-        <!-- Text -->
         <div class="text-block">
           <div class="username">SIDDHARTH</div>
           <div class="amount-row">
@@ -446,7 +427,6 @@
           <div class="message">"SIDD BHAI VANDAL SKIN REVIEW"</div>
         </div>
 
-        <!-- Equalizer -->
         <div class="eq">
           <div class="bar"></div><div class="bar"></div><div class="bar"></div>
           <div class="bar"></div><div class="bar"></div><div class="bar"></div>
@@ -460,24 +440,18 @@
   <script>
     const wrap = document.getElementById('alertWrap');
 
-    // Kick off entry animation on load
     function playEnter() {
       wrap.classList.remove('leaving');
       wrap.classList.add('entering');
     }
 
-    // Call playLeave() to dismiss (e.g. from OBS widget JS or after a timeout)
     function playLeave() {
       wrap.classList.remove('entering');
       wrap.classList.add('leaving');
     }
 
-    // Auto-play entry on load
     window.addEventListener('load', () => {
-      // Small delay so OBS browser source is fully ready
       setTimeout(playEnter, 100);
-
-      // Optional: auto-dismiss after 8 seconds (comment out if you want manual control)
       // setTimeout(playLeave, 8000);
     });
   </script>
