@@ -1,21 +1,18 @@
 import { useEffect, useRef, useState } from "react";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from "@/components/ui/drawer";
-import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, Button, Slider } from "@/components/ui";
 import { useSoundboardMock } from "../hooks/useSoundboardMock";
 import SlotTile from "./SlotTile";
 import AddNewPanel from "./AddNewPanel";
 import { Volume2, Search, Save, RefreshCw, Plus, X, Music3, LayoutGrid, EyeOff, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Mock toast for standalone
 const toast = (opts: any) => console.log("TOAST:", opts.title, opts.description);
 
 interface Props { streamerSlug: string; open: boolean; onOpenChange: (v: boolean) => void; }
 
 export default function SoundboardTray({ streamerSlug, open, onOpenChange }: Props) {
   const [seeding, setSeeding] = useState(false);
+  const [showRestoreConfirm, setShowRestoreConfirm] = useState(false); // Replaces AlertDialog
   const { active, hidden, loading, saving, error, isDirty, MAX_ACTIVE, refresh, hideSlot, unhideSlot, moveSlot, renameSlot, save, restoreDefaults, deleteSlot } = useSoundboardMock(streamerSlug);
   const [tab, setTab] = useState<"active" | "hidden" | "add">("active");
   const [playingId, setPlayingId] = useState<string | null>(null);
@@ -23,7 +20,7 @@ export default function SoundboardTray({ streamerSlug, open, onOpenChange }: Pro
   const [masterVolume, setMasterVolume] = useState(70);
   const [search, setSearch] = useState("");
 
-  const stopAudio = ()<think> { audioRef.current?.pause(); audioRef.current = null; setPlayingId(null); };
+  const stopAudio = () => { audioRef.current?.pause(); audioRef.current = null; setPlayingId(null); };
   const togglePlay = (id: string, url: string) => {
     if (playingId === id) { stopAudio(); return; }
     audioRef.current?.pause();
@@ -62,133 +59,140 @@ export default function SoundboardTray({ streamerSlug, open, onOpenChange }: Pro
   ];
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="sb-shell max-h-[94vh] border-t border-white/10 rounded-t-[28px] overflow-hidden">
-        <div className="sb-ambient" aria-hidden />
-        <div className="sb-noise" aria-hidden />
+    <>
+      <Drawer open={open} onOpenChange={onOpenChange}>
+        <DrawerContent className="sb-shell max-h-[94vh] border-t border-white/10 rounded-t-[28px] overflow-hidden flex flex-col">
+          <div className="sb-ambient" aria-hidden />
+          <div className="sb-noise" aria-hidden />
 
-        <DrawerHeader className="relative z-10 px-6 pt-5 pb-4 flex-row items-center gap-3 space-y-0 text-left">
-          <div className="sb-logo"><Music3 className="h-5 w-5 text-white" /></div>
-          <div className="flex-1 min-w-0">
-            <DrawerTitle className="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">Soundboard</DrawerTitle>
-            <DrawerDescription className="text-xs text-white/45 font-medium">
-              {active.length} active · {hidden.length} hidden
-              {error && <span className="ml-2 text-destructive">· {error}</span>}
-            </DrawerDescription>
-          </div>
-          {isDirty ? <span className="sb-status-dot"><span className="sb-status-pulse" /> Unsaved</span> : <span className="sb-status-saved"><Check className="h-3 w-3" /> Synced</span>}
-        </DrawerHeader>
+          <DrawerHeader className="relative z-10 px-6 pt-5 pb-4 flex-row flex items-center gap-3 space-y-0 text-left">
+            <div className="sb-logo"><Music3 className="h-5 w-5 text-white" /></div>
+            <div className="flex-1 min-w-0">
+              <DrawerTitle className="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">Soundboard</DrawerTitle>
+              <DrawerDescription className="text-xs text-white/45 font-medium">
+                {active.length} active · {hidden.length} hidden
+                {error && <span className="ml-2 text-red-400">· {error}</span>}
+              </DrawerDescription>
+            </div>
+            {isDirty ? <span className="sb-status-dot"><span className="sb-status-pulse" /> Unsaved</span> : <span className="sb-status-saved"><Check className="h-3 w-3" /> Synced</span>}
+          </DrawerHeader>
 
-        {/* RESPONSIVE LAYOUT */}
-        <div className="relative z-10 flex flex-1 min-h-0 px-3 pb-3 gap-3 flex-col">
-          {/* Mobile Nav (Horizontal Scroll) */}
-          <aside className="sb-sidebar shrink-0 w-full flex flex-row gap-1.5 p-2 overflow-x-auto md:hidden no-scrollbar">
-            {navItems.map((item) => {
-              const Icon = item.icon; const activeNav = tab === item.key;
-              return (
-                <button key={item.key} onClick={() => setTab(item.key)} className={cn("sb-nav whitespace-nowrap", activeNav && "sb-nav-active")}>
-                  <Icon className="h-4 w-4 shrink-0" />
-                  <span className="text-sm font-semibold">{item.label}</span>
-                  {item.count !== null && <span className={cn("sb-nav-badge", activeNav && "sb-nav-badge-active")}>{item.count}</span>}
-                </button>
-              );
-            })}
-          </aside>
-
-          <div className="flex flex-1 min-h-0 gap-3 flex-col md:flex-row">
-            {/* Desktop Sidebar */}
-            <aside className="sb-sidebar shrink-0 hidden md:flex w-[200px] flex-col gap-1.5 p-3">
-              <div className="px-2 pb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white/30">Sounds</div>
+          <div className="relative z-10 flex flex-1 min-h-0 px-3 pb-3 gap-3 flex-col">
+            {/* Mobile Nav */}
+            <aside className="sb-sidebar shrink-0 w-full flex flex-row gap-1.5 p-2 overflow-x-auto md:hidden no-scrollbar">
               {navItems.map((item) => {
                 const Icon = item.icon; const activeNav = tab === item.key;
                 return (
-                  <button key={item.key} onClick={() => setTab(item.key)} className={cn("sb-nav", activeNav && "sb-nav-active")}>
+                  <button key={item.key} onClick={() => setTab(item.key)} className={cn("sb-nav whitespace-nowrap", activeNav && "sb-nav-active")}>
                     <Icon className="h-4 w-4 shrink-0" />
-                    <span className="flex-1 text-left text-sm font-semibold">{item.label}</span>
+                    <span className="text-sm font-semibold">{item.label}</span>
                     {item.count !== null && <span className={cn("sb-nav-badge", activeNav && "sb-nav-badge-active")}>{item.count}</span>}
                   </button>
                 );
               })}
-              <div className="mt-auto pt-2">
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <button className="sb-nav sb-nav-danger" disabled={saving}>
-                      <RefreshCw className="h-4 w-4 shrink-0" />
-                      <span className="flex-1 text-left text-sm font-semibold">Restore Defaults</span>
-                    </button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent className="glass-panel border-white/10">
-                    <AlertDialogHeader><AlertDialogTitle>Restore default soundboard?</AlertDialogTitle><AlertDialogDescription>This hides all your custom slots and reactivates the full platform sound catalog.</AlertDialogDescription></AlertDialogHeader>
-                    <AlertDialogFooter><AlertDialogCancel className="border-white/10 text-white hover:bg-white/5">Cancel</AlertDialogCancel><AlertDialogAction onClick={onRestore} className="bg-primary hover:bg-primary/90">Restore</AlertDialogAction></AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
             </aside>
 
-            {/* Main panel */}
-            <main className="sb-main flex-1 min-w-0 flex flex-col p-4 overflow-hidden">
-              {showSeedButton && (
-                <div className="mb-4 flex items-center justify-between rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-4">
-                  <div className="text-sm text-muted-foreground">Platform catalog is empty. Seed the 44 default sounds.</div>
-                  <Button size="sm" onClick={onSeedPlatform} disabled={seeding} className="bg-primary hover:bg-primary/90">{seeding ? "Seeding…" : "Seed catalog"}</Button>
+            <div className="flex flex-1 min-h-0 gap-3 flex-col md:flex-row">
+              {/* Desktop Sidebar */}
+              <aside className="sb-sidebar shrink-0 hidden md:flex w-[200px] flex-col gap-1.5 p-3">
+                <div className="px-2 pb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white/30">Sounds</div>
+                {navItems.map((item) => {
+                  const Icon = item.icon; const activeNav = tab === item.key;
+                  return (
+                    <button key={item.key} onClick={() => setTab(item.key)} className={cn("sb-nav", activeNav && "sb-nav-active")}>
+                      <Icon className="h-4 w-4 shrink-0" />
+                      <span className="flex-1 text-left text-sm font-semibold">{item.label}</span>
+                      {item.count !== null && <span className={cn("sb-nav-badge", activeNav && "sb-nav-badge-active")}>{item.count}</span>}
+                    </button>
+                  );
+                })}
+                <div className="mt-auto pt-2">
+                  <button onClick={() => setShowRestoreConfirm(true)} className="sb-nav sb-nav-danger w-full" disabled={saving}>
+                    <RefreshCw className="h-4 w-4 shrink-0" />
+                    <span className="flex-1 text-left text-sm font-semibold">Restore Defaults</span>
+                  </button>
                 </div>
-              )}
+              </aside>
 
-              {tab !== "add" && (
-                <div className="flex items-center gap-3 mb-4 shrink-0">
-                  <div className="relative flex-1 max-w-xs">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
-                    <input type="text" placeholder="Search sounds..." value={search} onChange={(e) => setSearch(e.target.value)} className="sb-input w-full h-9 pl-9 pr-8 text-sm" />
-                    {search && <button onClick={() => setSearch("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"><X className="h-4 w-4" /></button>}
+              {/* Main panel */}
+              <main className="sb-main flex-1 min-w-0 flex flex-col p-4 overflow-hidden">
+                {showSeedButton && (
+                  <div className="mb-4 flex items-center justify-between rounded-2xl border border-dashed border-purple-500/30 bg-purple-500/5 p-4">
+                    <div className="text-sm text-zinc-400">Platform catalog is empty. Seed the 44 default sounds.</div>
+                    <Button size="sm" onClick={onSeedPlatform} disabled={seeding} className="bg-purple-600 text-white hover:bg-purple-700">{seeding ? "Seeding…" : "Seed catalog"}</Button>
                   </div>
-                  <div className="flex items-center gap-2 ml-auto sb-volume px-3 h-9">
-                    <Volume2 className="h-4 w-4 text-purple-300" />
-                    <Slider value={[masterVolume]} onValueChange={([v]) => setMasterVolume(v)} max={100} step={1} className="w-24" />
-                    <span className="text-xs font-mono text-white/60 w-8 tabular-nums">{masterVolume}%</span>
+                )}
+
+                {tab !== "add" && (
+                  <div className="flex items-center gap-3 mb-4 shrink-0">
+                    <div className="relative flex-1 max-w-xs">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+                      <input type="text" placeholder="Search sounds..." value={search} onChange={(e) => setSearch(e.target.value)} className="sb-input w-full h-9 pl-9 pr-8 text-sm" />
+                      {search && <button onClick={() => setSearch("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"><X className="h-4 w-4" /></button>}
+                    </div>
+                    <div className="flex items-center gap-2 ml-auto sb-volume px-3 h-9">
+                      <Volume2 className="h-4 w-4 text-purple-300" />
+                      <Slider value={[masterVolume]} onValueChange={([v]) => setMasterVolume(v)} max={100} step={1} className="w-24" />
+                      <span className="text-xs font-mono text-white/60 w-8 tabular-nums">{masterVolume}%</span>
+                    </div>
                   </div>
+                )}
+
+                <div className="flex-1 min-h-0 overflow-y-auto sb-scroll pr-1">
+                  {tab === "active" && (
+                    <>
+                      {loading && <SkeletonGrid />}
+                      {!loading && filteredActive.length === 0 && <EmptyState icon={LayoutGrid} title={search ? "No matches" : "No active sounds"} desc={search ? "Try a different search term." : "Unhide some sounds from the Hidden tab."} />}
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                        {filteredActive.map((s) => {
+                          const originalIndex = active.findIndex((a) => a.id === s.id);
+                          return <SlotTile key={s.id} slot={s} variant="active" index={originalIndex} total={active.length} isPlaying={playingId === s.id} onTogglePlay={() => togglePlay(s.id, s.audio_url)} onMoveUp={() => moveSlot(s.id, -1)} onMoveDown={() => moveSlot(s.id, 1)} onHide={() => hideSlot(s)} onRename={(n) => renameSlot(s.id, n)} />;
+                        })}
+                      </div>
+                    </>
+                  )}
+                  {tab === "hidden" && (
+                    <>
+                      {loading && <SkeletonGrid />}
+                      {!loading && filteredHidden.length === 0 && <EmptyState icon={EyeOff} title={search ? "No matches" : "Nothing hidden"} desc={search ? "Try a different search term." : "Sounds you hide will appear here."} />}
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                        {filteredHidden.map((s) => <SlotTile key={s.id} slot={s} variant="hidden" canAdd={active.length < MAX_ACTIVE} isPlaying={playingId === s.id} onTogglePlay={() => togglePlay(s.id, s.audio_url)} onUnhide={() => unhideSlot(s)} onRename={(n) => renameSlot(s.id, n)} onDelete={() => onDelete(s.id)} />)}
+                      </div>
+                    </>
+                  )}
+                  {tab === "add" && <AddNewPanel streamerSlug={streamerSlug} onCreated={refresh} />}
                 </div>
-              )}
+              </main>
+            </div>
+          </div>
 
-              <div className="flex-1 min-h-0 overflow-y-auto sb-scroll pr-1">
-                {tab === "active" && (
-                  <>
-                    {loading && <SkeletonGrid />}
-                    {!loading && filteredActive.length === 0 && <EmptyState icon={LayoutGrid} title={search ? "No matches" : "No active sounds"} desc={search ? "Try a different search term." : "Unhide some sounds from the Hidden tab."} />}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                      {filteredActive.map((s) => {
-                        const originalIndex = active.findIndex((a) => a.id === s.id);
-                        return <SlotTile key={s.id} slot={s} variant="active" index={originalIndex} total={active.length} isPlaying={playingId === s.id} onTogglePlay={() => togglePlay(s.id, s.audio_url)} onMoveUp={() => moveSlot(s.id, -1)} onMoveDown={() => moveSlot(s.id, 1)} onHide={() => hideSlot(s)} onRename={(n) => renameSlot(s.id, n)} />;
-                      })}
-                    </div>
-                  </>
-                )}
-                {tab === "hidden" && (
-                  <>
-                    {loading && <SkeletonGrid />}
-                    {!loading && filteredHidden.length === 0 && <EmptyState icon={EyeOff} title={search ? "No matches" : "Nothing hidden"} desc={search ? "Try a different search term." : "Sounds you hide will appear here."} />}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                      {filteredHidden.map((s) => <SlotTile key={s.id} slot={s} variant="hidden" canAdd={active.length < MAX_ACTIVE} isPlaying={playingId === s.id} onTogglePlay={() => togglePlay(s.id, s.audio_url)} onUnhide={() => unhideSlot(s)} onRename={(n) => renameSlot(s.id, n)} onDelete={() => onDelete(s.id)} />)}
-                    </div>
-                  </>
-                )}
-                {tab === "add" && <AddNewPanel streamerSlug={streamerSlug} onCreated={refresh} />}
-              </div>
-            </main>
+          <div className="relative z-10 flex items-center justify-between gap-2 border-t border-white/10 px-6 py-3 bg-black/30 backdrop-blur-md mt-auto">
+            <div className="text-xs text-white/40 font-medium"><span className="text-white/70 font-semibold">{active.length}</span>/{MAX_ACTIVE} active slots used</div>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={() => refresh()} disabled={saving || loading} className="text-white/50 hover:text-white hover:bg-white/5">Discard</Button>
+              <Button size="sm" onClick={onSave} disabled={saving || !isDirty} className={cn("sb-save-btn font-semibold text-white", isDirty && "sb-save-btn-active")}>
+                {isDirty ? (<><Save className="h-4 w-4 mr-1.5" />{saving ? "Saving…" : "Save changes"}</>) : (<><Check className="h-4 w-4 mr-1.5" /> Saved</>)}
+              </Button>
+            </div>
+          </div>
+          <SoundboardTrayStyles />
+        </DrawerContent>
+      </Drawer>
+
+      {/* Custom Restore Confirmation Modal */}
+      {showRestoreConfirm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4" onClick={() => setShowRestoreConfirm(false)}>
+          <div className="bg-zinc-900 p-6 rounded-lg max-w-sm w-full border border-white/10" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-white">Restore default soundboard?</h3>
+            <p className="text-sm text-zinc-400 mt-2">This hides all your custom slots and reactivates the full platform sound catalog.</p>
+            <div className="flex justify-end gap-2 mt-6">
+              <Button variant="ghost" onClick={() => setShowRestoreConfirm(false)}>Cancel</Button>
+              <Button onClick={() => { onRestore(); setShowRestoreConfirm(false); }} className="bg-purple-600 text-white hover:bg-purple-700">Restore</Button>
+            </div>
           </div>
         </div>
-
-        <div className="relative z-10 flex items-center justify-between gap-2 border-t border-white/10 px-6 py-3 bg-black/30 backdrop-blur-md">
-          <div className="text-xs text-white/40 font-medium"><span className="text-white/70 font-semibold">{active.length}</span>/{MAX_ACTIVE} active slots used</div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={() => refresh()} disabled={saving || loading} className="text-white/50 hover:text-white hover:bg-white/5">Discard</Button>
-            <Button size="sm" onClick={onSave} disabled={saving || !isDirty} className={cn("sb-save-btn font-semibold text-white", isDirty && "sb-save-btn-active")}>
-              {isDirty ? (<><Save className="h-4 w-4 mr-1.5" />{saving ? "Saving…" : "Save changes"}</>) : (<><Check className="h-4 w-4 mr-1.5" /> Saved</>)}
-            </Button>
-          </div>
-        </div>
-        <SoundboardTrayStyles />
-      </DrawerContent>
-    </Drawer>
+      )}
+    </>
   );
 }
 
@@ -198,6 +202,7 @@ function EmptyState({ icon: Icon, title, desc }: { icon: any; title: string; des
 function SoundboardTrayStyles() {
   return (
     <style>{`
+      @keyframes slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
       .no-scrollbar::-webkit-scrollbar { display: none; }
       .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       .sb-shell { background: radial-gradient(120% 90% at 15% -10%, rgba(124,58,237,0.18), transparent 55%), radial-gradient(120% 90% at 95% 0%, rgba(34,211,238,0.12), transparent 50%), linear-gradient(180deg, #0c0c14 0%, #08080e 100%); }
