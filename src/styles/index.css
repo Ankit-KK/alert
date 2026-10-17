@@ -274,6 +274,11 @@
   animation: hc-live 2.4s ease-in-out infinite;
 }
 
+/* The 3D stage renders the brand mark itself in the brand-solo sections. */
+html[data-stage='ready'] .brand-flat-mark {
+  opacity: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
-import { RotateCcw } from 'lucide-react'
+import { RotateCcw, Volume2, VolumeX } from 'lucide-react'
 import { VISUAL_STATES } from '@/content/site'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
+import { soundEngine } from '@/lib/audio/soundEngine'
+import { useSoundMuted } from '@/lib/audio/useSoundMuted'
 import { now, sceneStore } from '@/lib/three/sceneStore'
 import { StreamViewport } from './StreamViewport'
 
@@ -9,12 +11,14 @@ import { StreamViewport } from './StreamViewport'
  * Message → media → overlay, as a three-state composition with depth.
  * Tabs switch the state; "Play sequence" steps through all three. Layers that
  * are not the focus of the current state recede (blur + fade) to read as a
- * shallow depth of field.
+ * shallow depth of field. The overlay lands with a short alert chime unless
+ * sound is switched off (shared with the soundboard's toggle).
  */
 export function VisualStateDemo() {
   const reduced = useReducedMotion()
   const [state, setState] = useState(0)
   const [playing, setPlaying] = useState(false)
+  const [muted, toggleMute] = useSoundMuted()
   const tabs = useRef<(HTMLButtonElement | null)[]>([])
   const timers = useRef<number[]>([])
 
@@ -28,10 +32,12 @@ export function VisualStateDemo() {
     setState(i)
     sceneStore.lastPulse = now()
     sceneStore.invalidate?.(60)
+    if (i === 2) void soundEngine.play('alert')
   }
 
   const play = () => {
     clearTimers()
+    soundEngine.unlock()
     setPlaying(true)
     select(0)
     const step = reduced ? 1800 : 1600
@@ -104,10 +110,23 @@ export function VisualStateDemo() {
           <p className="mt-3 max-w-md text-[1.0625rem] leading-relaxed text-mist">{current.body}</p>
         </div>
 
-        <button type="button" onClick={play} disabled={playing} className="btn btn-ghost mt-6 disabled:opacity-50">
-          <RotateCcw aria-hidden="true" className="h-4 w-4" />
-          {playing ? 'Playing sequence…' : 'Play sequence'}
-        </button>
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <button type="button" onClick={play} disabled={playing} className="btn btn-ghost disabled:opacity-50">
+            <RotateCcw aria-hidden="true" className="h-4 w-4" />
+            {playing ? 'Playing sequence…' : 'Play sequence'}
+          </button>
+          {soundEngine.supported && (
+            <button
+              type="button"
+              onClick={toggleMute}
+              aria-pressed={!muted}
+              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line px-4 text-sm font-medium text-mist transition-colors hover:border-mist/50 hover:text-ivory"
+            >
+              {muted ? <VolumeX aria-hidden="true" className="h-4 w-4" /> : <Volume2 aria-hidden="true" className="h-4 w-4" />}
+              Alert chime
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Composition */}

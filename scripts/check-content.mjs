@@ -26,6 +26,12 @@ for (const f of [...sourceFiles, ...builtFiles]) {
     .forEach((line, i) => restricted.test(line) && problems.push(`${f}:${i + 1} restricted term`))
 }
 
+// The supplied HyperChat logo carries its own blue → magenta gradient. Those
+// brand-artwork files are the only ones allowed to contain it; the rest of the
+// page palette must stay clear of purple.
+const BRAND_ARTWORK = [/^public\/brand\//, /^public\/favicon\.svg$/, /^src\/assets\/hyperchat-/, /^src\/components\/three\/BrandEmblem\.tsx$/]
+const isBrandArtwork = (f) => BRAND_ARTWORK.some((re) => re.test(f))
+
 const currency = /[€£₹¥]|\$\d/
 const hex = /#([0-9a-f]{6}|[0-9a-f]{3})\b/gi
 const hue = (h) => {
@@ -44,6 +50,7 @@ for (const f of sourceFiles) {
     .split('\n')
     .forEach((line, i) => {
       if (currency.test(line)) problems.push(`${f}:${i + 1} currency symbol`)
+      if (isBrandArtwork(f)) return
       for (const [, h] of line.matchAll(hex)) {
         const { h: H, s } = hue(h)
         if (s > 0.2 && H >= 255 && H <= 335) problems.push(`${f}:${i + 1} purple-family colour #${h}`)

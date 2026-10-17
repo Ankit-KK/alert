@@ -27,13 +27,13 @@ src/
   content/site.ts            all copy, demo data, nav + CTA destinations
   lib/motion/                Lenis + ScrollTrigger provider, scene director, camera keyframes
   lib/three/                 shared scene store (DOM ⇄ WebGL bridge), world layout, device tiers
-  lib/audio/                 Web Audio soundboard synth, browser speech preview hook
+  lib/audio/                 sound engine (fetch + Web Audio playback, limiter, analyser), shared mute
   components/three/          the single WebGL stage and every engine part
   components/sections/       the nine page sections, in narrative order
   components/interactive/    voice demo, sound deck, visual-state demo, creator studio preview
   components/navigation/     header + accessible mobile menu
   components/layout/         fixed stage layer, footer
-  components/brand/Logo.tsx  the only place the logo is drawn
+  components/brand/Logo.tsx  the flat logo lockup (the 3D mark is components/three/BrandEmblem.tsx)
 scripts/check-content.mjs    blocks restricted wording, currency symbols and purple-family colours
 ```
 
@@ -48,11 +48,22 @@ The public site (hyperchat.space) and the V2 preview were not reachable from the
 
 | Demo | What actually happens |
 | --- | --- |
-| Voice | Speaks the sample with the **browser's built-in speech engine** and says so. Falls back to a labelled visual-only preview when speech is unavailable. |
-| Soundboard | Six original cues synthesized live with Web Audio (no samples), one at a time, through a limiter, with a persisted mute toggle. |
-| Visuals | Local three-state composition (message → media → overlay), labelled "Illustrative composition — not a product screenshot". |
+| Voice | Plays one of three **pre-recorded sample clips** (static files) and labels them as ElevenLabs stock voices made for this page. The waveform is the clip's real loudness envelope and moves with the live audio. Falls back to a labelled visual-only preview without Web Audio. |
+| Soundboard | Six short effects (static files), one at a time, through a limiter, with a persisted mute toggle shared with the visuals chime. |
+| Visuals | Local three-state composition (message → media → overlay) with an optional alert chime, labelled "Illustrative composition — not a product screenshot". |
 | Creator studio | Local state only, labelled "Concept preview · sample data". No backend calls anywhere on the page. |
 
 ## Brand assets
 
-The official HyperChat logo file was not available to this build. `components/brand/Logo.tsx`, `public/brand/hyperchat-mark.svg` and `public/favicon.svg` hold a self-authored stand-in mark. Replace those three (and regenerate `public/og-image.png` / `public/brand/apple-touch-icon.png`) to apply the official logo everywhere.
+`public/brand/hyperchat-mark.svg` and `hyperchat-wordmark.svg` are vector traces of the supplied official logo files (the matching `.png` files are the untouched originals, cropped). Proportions and the logo's own blue → magenta gradient are preserved; it is the only place that colour appears, and `scripts/check-content.mjs` allowlists exactly these brand files. The 3D stage extrudes the same SVG (`components/three/BrandEmblem.tsx`), and `public/favicon.svg`, `public/og-image.png` and `public/brand/apple-touch-icon.png` are built from it.
+
+## Audio
+
+All demo audio is static and lives in `public/audio` (about 320 KB in total). Nothing is generated, streamed or uploaded at runtime.
+
+| File | Source |
+| --- | --- |
+| `sfx/hype, wow, gg, clutch, bruh, cheer, alert .mp3` | Generated once with ElevenLabs sound effects (text-to-sound) for this page from original prompts. |
+| `voice/kitecat, nova, mossbyte .mp3` | Generated once with ElevenLabs text to speech using stock voices (Jessica, Will, Charlie); the lines are the sample messages in `content/site.ts`. |
+
+Each clip was picked from four takes, trimmed of silence, and loudness-matched with ffmpeg (≈ −16 LUFS for effects, ≈ −17.5 LUFS for voice, peaks limited below −1.5 dBFS). The voice waveform data in `content/site.ts` is measured from the final files.

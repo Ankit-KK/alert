@@ -7,6 +7,8 @@ import type { InteractionKind } from './textures'
 export const engineState = {
   /** Damped scene separation (0 docked … 1 separated). */
   sep: 0,
+  /** Damped brand-solo amount (0 full engine … 1 HC mark alone). */
+  solo: 0,
   /** Damped station focus weights [voice, pads, media]. */
   focus: [0, 0, 0] as [number, number, number],
   /** Most recent interaction kind shown on the display overlay. */

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { Volume2, VolumeX } from 'lucide-react'
 import { SOUND_PADS, type PadTone } from '@/content/site'
-import { soundEngine } from '@/lib/audio/soundEngine'
+import { SFX_URLS, soundEngine } from '@/lib/audio/soundEngine'
+import { useSoundMuted } from '@/lib/audio/useSoundMuted'
 import { hitPad, sceneStore } from '@/lib/three/sceneStore'
 
 const TONE_CLASS: Record<PadTone, string> = {
@@ -10,23 +11,15 @@ const TONE_CLASS: Record<PadTone, string> = {
   mint: 'data-[hit=true]:bg-mint data-[hit=true]:text-obsidian',
 }
 
-const MUTE_KEY = 'hc:soundboard-muted'
-
-function readMuted(): boolean {
-  try {
-    return window.localStorage.getItem(MUTE_KEY) === '1'
-  } catch {
-    return false
-  }
-}
+const warmPads = () => soundEngine.warm(SOUND_PADS.map((p) => SFX_URLS[p.id]))
 
 /**
- * The soundboard control deck. Real buttons drive both the synthesized audio
+ * The soundboard control deck. Real buttons drive both the pad sounds
  * and the 3D pads, so mouse, touch, and keyboard all get the same experience.
  * Keys 1–6 strike pads while focus is inside the deck.
  */
 export function SoundDeck() {
-  const [muted, setMuted] = useState(readMuted)
+  const [muted, toggleMute] = useSoundMuted()
   const [hit, setHit] = useState<number | null>(null)
   const [last, setLast] = useState<string | null>(null)
   const hitTimer = useRef(0)
@@ -38,22 +31,11 @@ export function SoundDeck() {
   const strike = (i: number) => {
     const pad = SOUND_PADS[i]
     hitPad(i)
-    if (!muted && audioOk) soundEngine.play(pad.id)
+    if (!muted && audioOk) void soundEngine.play(pad.id)
     setHit(i)
     setLast(pad.label)
     window.clearTimeout(hitTimer.current)
     hitTimer.current = window.setTimeout(() => setHit(null), 420)
-  }
-
-  const toggleMute = () => {
-    setMuted((m) => {
-      try {
-        window.localStorage.setItem(MUTE_KEY, m ? '0' : '1')
-      } catch {
-        /* storage unavailable: keep in-memory state */
-      }
-      return !m
-    })
   }
 
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -76,14 +58,13 @@ export function SoundDeck() {
       : 'Tap a pad, or press keys 1–6.'
 
   return (
-    <div className="panel p-5 sm:p-6" onKeyDown={onKeyDown}>
+    <div className="panel p-5 sm:p-6" onKeyDown={onKeyDown} onPointerEnter={warmPads} onFocus={warmPads}>
       <div className="mb-5 flex items-center justify-between gap-4">
         <span className="font-display text-sm font-semibold text-ivory">Sound pads</span>
         {audioOk ? (
           <button
             type="button"
             onClick={toggleMute}
-            aria-pressed={muted}
             className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line px-4 text-sm font-medium text-mist transition-colors hover:border-mist/50 hover:text-ivory"
           >
             {muted ? <VolumeX aria-hidden="true" className="h-4 w-4" /> : <Volume2 aria-hidden="true" className="h-4 w-4" />}
@@ -132,7 +113,8 @@ export function SoundDeck() {
         {statusText}
       </p>
       <p className="mt-3 border-t border-line pt-4 text-[0.8125rem] leading-relaxed text-mist">
-        Pad sounds are synthesized live in your browser for this demo — original tones, kept short and at a gentle volume.
+        Pad sounds are original effects generated with ElevenLabs for this demo, trimmed short and level-matched. One plays at a time, at a
+        gentle volume.
       </p>
     </div>
   )

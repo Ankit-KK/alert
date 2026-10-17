@@ -69,12 +69,48 @@ export interface VoiceSample {
   id: string
   user: string
   text: string
+  /** Pre-generated sample clip in /public/audio/voice. */
+  src: string
+  /** Name of the ElevenLabs stock voice the sample was generated with. */
+  voice: string
+  duration: number
+  /** Normalised loudness envelope of the clip (48 bins), for the idle waveform. */
+  peaks: number[]
 }
 
+/**
+ * Sample voice messages. Each line was generated once with ElevenLabs text to
+ * speech (stock voices) for this preview and ships as a static file; the
+ * homepage never calls a voice API.
+ */
 export const VOICE_SAMPLES: VoiceSample[] = [
-  { id: 'v1', user: 'kitecat', text: 'That last round was unreal. Run it back one more time!' },
-  { id: 'v2', user: 'nova_frames', text: 'Greetings from the night shift. This stream is keeping me awake.' },
-  { id: 'v3', user: 'mossbyte', text: 'Calling it now: next map is the comeback. Chat, hold me to it.' },
+  {
+    id: 'v1',
+    user: 'kitecat',
+    text: 'That last round was unreal! Run it back one more time!',
+    src: '/audio/voice/kitecat.mp3',
+    voice: 'Jessica',
+    duration: 4.12,
+    peaks: [0.22, 0.69, 0.83, 0.41, 0.56, 0.83, 0.57, 0.09, 0.45, 0.9, 0.75, 0.37, 0.53, 0.32, 0.06, 0.7, 0.71, 0.41, 0.3, 0.16, 0.14, 0.62, 0.88, 0.94, 0.81, 0.77, 0.45, 0.06, 0.07, 0.16, 0.36, 0.96, 0.85, 0.69, 0.73, 0.29, 0.28, 0.32, 1.0, 0.49, 0.72, 0.75, 0.51, 0.77, 0.46, 0.2, 0.18, 0.07],
+  },
+  {
+    id: 'v2',
+    user: 'nova_frames',
+    text: 'Greetings from the night shift. This stream is keeping me awake.',
+    src: '/audio/voice/nova.mp3',
+    voice: 'Will',
+    duration: 4.49,
+    peaks: [0.24, 0.14, 0.77, 0.29, 0.06, 0.12, 0.12, 0.07, 0.06, 0.18, 0.64, 1.0, 0.8, 0.67, 0.34, 0.84, 0.82, 0.89, 0.81, 0.39, 0.42, 0.68, 0.25, 0.16, 0.16, 0.07, 0.06, 0.06, 0.07, 0.52, 0.2, 0.14, 0.35, 0.61, 0.58, 0.38, 0.2, 0.57, 0.32, 0.54, 0.71, 0.47, 0.34, 0.48, 0.49, 0.19, 0.31, 0.09],
+  },
+  {
+    id: 'v3',
+    user: 'mossbyte',
+    text: 'Calling it now: next map is the comeback. Chat, hold me to it!',
+    src: '/audio/voice/mossbyte.mp3',
+    voice: 'Charlie',
+    duration: 4.41,
+    peaks: [0.51, 1.0, 0.72, 0.69, 0.34, 0.7, 0.47, 0.24, 0.11, 0.06, 0.06, 0.22, 0.42, 0.62, 0.24, 0.32, 0.73, 0.81, 0.1, 0.06, 0.76, 0.32, 0.66, 0.4, 0.47, 0.72, 0.58, 0.35, 0.22, 0.16, 0.11, 0.06, 0.06, 0.12, 0.84, 0.79, 0.07, 0.06, 0.06, 0.28, 0.88, 0.54, 0.69, 0.15, 0.58, 0.27, 0.07, 0.06],
+  },
 ]
 
 export type PadTone = 'cyan' | 'signal' | 'mint'
@@ -87,14 +123,17 @@ export interface SoundPad {
   description: string
 }
 
-/** Pad cues are synthesized in the browser — see lib/audio/soundEngine.ts. */
+/**
+ * Pad sounds are short original effects generated with ElevenLabs sound
+ * effects for this demo and shipped as static files in /public/audio/sfx.
+ */
 export const SOUND_PADS: SoundPad[] = [
-  { id: 'hype', label: 'HYPE', key: '1', tone: 'signal', description: 'rising synth sweep' },
-  { id: 'wow', label: 'WOW', key: '2', tone: 'cyan', description: 'bending two-tone glide' },
-  { id: 'gg', label: 'GG', key: '3', tone: 'mint', description: 'two bright chime notes' },
-  { id: 'clutch', label: 'CLUTCH', key: '4', tone: 'signal', description: 'punchy hit with a bright stab' },
-  { id: 'bruh', label: 'BRUH', key: '5', tone: 'cyan', description: 'low wobbling buzz' },
-  { id: 'cheer', label: 'CHEER', key: '6', tone: 'mint', description: 'airy swell with sparkles' },
+  { id: 'hype', label: 'HYPE', key: '1', tone: 'signal', description: 'synth riser into a bright stab' },
+  { id: 'wow', label: 'WOW', key: '2', tone: 'cyan', description: 'small crowd going “ooh”' },
+  { id: 'gg', label: 'GG', key: '3', tone: 'mint', description: 'two-note arcade victory chime' },
+  { id: 'clutch', label: 'CLUTCH', key: '4', tone: 'signal', description: 'deep impact with a bright whoosh' },
+  { id: 'bruh', label: 'BRUH', key: '5', tone: 'cyan', description: 'deflated cartoon brass slide' },
+  { id: 'cheer', label: 'CHEER', key: '6', tone: 'mint', description: 'short burst of cheering' },
 ]
 
 export interface VisualState {

@@ -42,6 +42,14 @@ export function StageLayer({
     }
   }, [caps.webgl])
 
+  // Lets CSS hand off DOM stand-ins (e.g. the brand moment's flat mark) once the 3D stage is live.
+  useEffect(() => {
+    if (ready) document.documentElement.dataset.stage = 'ready'
+    return () => {
+      delete document.documentElement.dataset.stage
+    }
+  }, [ready])
+
   // Pointer parallax input (fine pointers only).
   useEffect(() => {
     if (caps.coarsePointer || reduced) return

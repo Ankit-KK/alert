@@ -47,7 +47,7 @@ export function StreamDisplay({ kit }: { kit: StageKit }) {
       <mesh geometry={kit.geo.display} material={kit.mat.graphite} />
       <mesh geometry={kit.geo.plane} material={screenMat} position={[0, 0.02, 0.071]} scale={[3.3, 1.856, 1]} />
       <mesh geometry={kit.geo.plane} material={kit.mat.glass} position={[0, 0.02, 0.078]} scale={[3.3, 1.856, 1]} />
-      <mesh ref={alertRef} geometry={kit.geo.plane} material={alertMat} position={[-0.72, -0.5, 0.085]} scale={[1.6, 0.35, 1]} />
+      <mesh ref={alertRef} geometry={kit.geo.plane} material={alertMat} position={[-0.72, 0.55, 0.085]} scale={[1.6, 0.35, 1]} />
       {/* Light strip and neck tie the display to the core below. */}
       <mesh material={stripMat} position={[0, -1.07, 0.03]}>
         <boxGeometry args={[2.6, 0.018, 0.02]} />

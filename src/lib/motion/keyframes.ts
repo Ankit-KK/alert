@@ -14,8 +14,9 @@ import type { SectionId } from '@/content/site'
  *   D experience  — voice station in focus
  *   E soundboard  — pad station prominent
  *   F visuals     — camera rises toward the media frames
- *   G control/how — stage pulls back and dims under product UI
- *   H story/cta   — closing wide composition, modules re-docked
+ *   G visuals/control/how — stage recedes almost fully under product UI
+ *   H story/cta   — brand solo: modules fold into the core and the HC mark
+ *                   rises, large, behind the closing type
  *
  * Desktop keyframes offset the camera left of its subject so the 3D sits on
  * the right while text reads on the left. Mobile keyframes centre the subject
@@ -30,18 +31,20 @@ const kf = (
   focus: RigState['focus'],
   dim: number,
   veil = 0,
-): RigState => ({ cam, target, sep, focus, dim, veil })
+  solo = 0,
+): RigState => ({ cam, target, sep, focus, dim, veil, solo })
 
 export const DESKTOP_KEYFRAMES: Keyframes = {
   top: kf([-2.6, 0.3, 12], [-2.6, -0.1, 0], 0, [0, 0, 0], 0, 0.35),
   features: kf([-1.9, 0.35, 10.5], [-1.9, -0.1, 0], 1, [0, 0, 0], 0.1, 1),
   experience: kf([-6.0, 0.7, 7.2], [-6.0, 0.35, 1.0], 1, [1, 0, 0], 0.08, 1),
   soundboard: kf([2.2, 1.5, 8.8], [2.2, -0.5, 1.2], 1, [0, 1, 0], 0.08, 1),
-  visuals: kf([0.9, 2.0, 10], [0.9, 2.3, -2.0], 1, [0, 0, 1], 0.82),
-  control: kf([0, 0.6, 13], [0, 0, 0], 0.6, [0, 0, 0], 0.88),
-  'how-it-works': kf([0, 0.4, 14], [0, 0, 0], 0.35, [0, 0, 0], 0.9),
-  story: kf([0, 0.25, 17], [0, 0.1, 0], 0, [0, 0, 0], 0.32),
-  'get-started': kf([0, 3.0, 13], [0, 2.0, 0], 0, [0, 0, 0], 0.6),
+  visuals: kf([0.9, 2.0, 10], [0.9, 2.3, -2.0], 1, [0, 0, 1], 0.94),
+  control: kf([0, 0.6, 13], [0, 0, 0], 0.6, [0, 0, 0], 0.95),
+  'how-it-works': kf([0, 0.4, 14], [0, 0, 0], 0.35, [0, 0, 0], 0.95),
+  // Brand solo: the camera looks below the risen mark so it lands in the slot above the type.
+  story: kf([0, -1.0, 10.5], [0, -1.12, 0], 0, [0, 0, 0], 0, 0, 1),
+  'get-started': kf([0, -0.6, 14], [0, -1.2, 0], 0, [0, 0, 0], 0.88, 0, 1),
 }
 
 export const MOBILE_KEYFRAMES: Keyframes = {
@@ -49,11 +52,11 @@ export const MOBILE_KEYFRAMES: Keyframes = {
   features: kf([0, -0.4, 13.5], [0, -1.3, 0], 1, [0, 0, 0], 0.62),
   experience: kf([-4.4, -0.2, 9.4], [-4.4, -1.0, 1.0], 1, [1, 0, 0], 0.72),
   soundboard: kf([4.4, 0.8, 9.4], [4.4, -1.1, 1.2], 1, [0, 1, 0], 0.72),
-  visuals: kf([0.9, 2.0, 12], [0.9, 2.2, -2.0], 1, [0, 0, 1], 0.85),
-  control: kf([0, 0.6, 16], [0, 0, 0], 0.6, [0, 0, 0], 0.86),
-  'how-it-works': kf([0, 0.4, 17], [0, 0, 0], 0.35, [0, 0, 0], 0.86),
-  story: kf([0, 0.2, 21], [0, 0.1, 0], 0, [0, 0, 0], 0.35),
-  'get-started': kf([0, 2.6, 15.5], [0, 1.3, 0], 0, [0, 0, 0], 0.55),
+  visuals: kf([0.9, 2.0, 12], [0.9, 2.2, -2.0], 1, [0, 0, 1], 0.92),
+  control: kf([0, 0.6, 16], [0, 0, 0], 0.6, [0, 0, 0], 0.93),
+  'how-it-works': kf([0, 0.4, 17], [0, 0, 0], 0.35, [0, 0, 0], 0.93),
+  story: kf([0, -1.5, 15], [0, -1.6, 0], 0, [0, 0, 0], 0, 0, 1),
+  'get-started': kf([0, -0.6, 18], [0, -1.6, 0], 0, [0, 0, 0], 0.88, 0, 1),
 }
 
 /** Matches the CameraRig field-of-view switch. */
@@ -68,4 +71,5 @@ export function lerpRig(a: RigState, b: RigState, t: number, out: RigState) {
   out.sep = a.sep + (b.sep - a.sep) * t
   out.dim = a.dim + (b.dim - a.dim) * t
   out.veil = a.veil + (b.veil - a.veil) * t
+  out.solo = a.solo + (b.solo - a.solo) * t
 }

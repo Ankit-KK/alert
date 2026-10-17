@@ -21,6 +21,8 @@ export interface RigState {
   dim: number
   /** 0..1 strength of the left-side readability veil behind text columns. */
   veil: number
+  /** 0 = full engine, 1 = brand solo: modules fold away and the HC mark takes the stage. */
+  solo: number
 }
 
 export interface SceneStore {
@@ -55,6 +57,7 @@ export const sceneStore: SceneStore = {
     focus: [0, 0, 0],
     dim: 0,
     veil: 0,
+    solo: 0,
   },
   intro: 0,
   pointer: { x: 0, y: 0 },
