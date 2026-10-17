@@ -1,20 +1,39 @@
 import { useMemo, useRef } from 'react'
-import { useFrame } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
+import { isMobileAspect } from '@/lib/motion/keyframes'
 import { WORLD } from '@/lib/three/layout'
 import { now, sceneStore } from '@/lib/three/sceneStore'
 import { engineState } from './engineState'
 import { easeInOutCubic, easeOutCubic, useDisposable, type StageKit } from './kit'
 import { ENGINE_MESSAGES, makeMessageTexture } from './textures'
 
-/** Docked home positions around the display (hero composition). */
-const HOMES: [number, number, number][] = [
+type Home = [number, number, number]
+
+/**
+ * Docked home positions around the display (hero composition). On desktop the
+ * cards render larger for legibility, so they sit a little wider of the media
+ * frames and the headline; narrow viewports keep the compact layout.
+ */
+const HOMES: Home[] = [
+  [-1.5, 2.45, 0.6],
+  [1.65, 1.95, 0.4],
+  [1.72, 0.3, 1.2],
+  [-1.68, -0.25, 1.3],
+  [0.35, -2.25, 1.9],
+]
+const HOMES_COMPACT: Home[] = [
   [-1.55, 2.05, 0.6],
   [1.65, 1.95, 0.4],
   [1.95, 0.3, 1.2],
   [-2.15, -0.25, 1.3],
   [0.35, -2.25, 1.9],
 ]
+
+/** Desktop cards render larger than the kit's card slab so their copy stays legible. */
+const CARD_SCALE = 1.22
+/** Face plane: covers the slab's front, matching the texture's 640×168 aspect. */
+const FACE: [number, number, number] = [1.53, 0.4016, 1]
 
 const CYCLE = 3.8
 const TRAVEL = 1.25
@@ -30,6 +49,9 @@ const corePoint = new THREE.Vector3(WORLD.core[0], WORLD.core[1] + 0.45, WORLD.c
  */
 export function MessageOrbit({ kit, count, reduced }: { kit: StageKit; count: number; reduced: boolean }) {
   const messages = ENGINE_MESSAGES.slice(0, count)
+  const compact = useThree((s) => isMobileAspect(s.size.width, s.size.height))
+  const homes = compact ? HOMES_COMPACT : HOMES
+  const cardScale = compact ? 1 : CARD_SCALE
   const textures = useDisposable(() => messages.map(makeMessageTexture), [count])
   const faceMats = useDisposable(
     () => textures.map((map) => new THREE.MeshBasicMaterial({ map, transparent: true, depthWrite: false, toneMapped: false })),
@@ -40,12 +62,12 @@ export function MessageOrbit({ kit, count, reduced }: { kit: StageKit; count: nu
   // Arc from each docked home into the core, lifted through a control point.
   const curves = useMemo(
     () =>
-      HOMES.slice(0, count).map((h) => {
+      homes.slice(0, count).map((h) => {
         const start = new THREE.Vector3(...h)
         const mid = start.clone().lerp(corePoint, 0.5).add(new THREE.Vector3(0, 0.9, 0.9))
         return new THREE.CatmullRomCurve3([start, mid, corePoint])
       }),
-    [count],
+    [count, homes],
   )
   const arcGeos = useDisposable(() => curves.map((c) => new THREE.TubeGeometry(c, 48, 0.006, 5, false)), [curves])
   const arcMat = useDisposable(() => kit.mat.arc.clone(), [kit])
@@ -73,7 +95,7 @@ export function MessageOrbit({ kit, count, reduced }: { kit: StageKit; count: nu
     for (let i = 0; i < messages.length; i++) {
       const card = cards.current[i]
       if (!card) continue
-      const home = HOMES[i]
+      const home = homes[i]
       // Separated layout: push outward and toward the viewer.
       const spread = 1 + sep * 0.9
       tmp.set(home[0] * spread, home[1] * (1 + sep * 0.5), home[2] - sep * 1.5)
@@ -103,7 +125,7 @@ export function MessageOrbit({ kit, count, reduced }: { kit: StageKit; count: nu
         card.position.lerp(tmp, 0.12)
       }
 
-      card.scale.setScalar(scale * (0.75 + 0.25 * sceneStore.intro))
+      card.scale.setScalar(scale * cardScale * (0.75 + 0.25 * sceneStore.intro))
       card.lookAt(camera.position)
       faceMats[i].opacity = opacity * sceneStore.intro * presence
       bodyMats[i].opacity = opacity * sceneStore.intro * presence
@@ -123,10 +145,10 @@ export function MessageOrbit({ kit, count, reduced }: { kit: StageKit; count: nu
           ref={(el) => {
             cards.current[i] = el
           }}
-          position={HOMES[i]}
+          position={homes[i]}
         >
           <mesh geometry={kit.geo.card} material={bodyMats[i]} />
-          <mesh geometry={kit.geo.plane} material={faceMats[i]} position={[0, 0, 0.03]} scale={[1.45, 0.38, 1]} />
+          <mesh geometry={kit.geo.plane} material={faceMats[i]} position={[0, 0, 0.028]} scale={FACE} />
         </group>
       ))}
     </group>

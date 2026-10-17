@@ -9,7 +9,7 @@ import { CameraRig } from './CameraRig'
 import { Dust } from './Dust'
 import { Engine } from './Engine'
 import { Lighting } from './Lighting'
-import { PALETTE } from './textures'
+import { PALETTE, textureQuality } from './textures'
 
 const Effects = lazy(() => import('./Effects'))
 
@@ -40,6 +40,24 @@ function DemandBridge() {
   return null
 }
 
+/** Stops the render loop while the page's dim layer fully hides the stage. */
+function CoverBridge({ reduced }: { reduced: boolean }) {
+  const setFrameloop = useThree((s) => s.setFrameloop)
+  const invalidate = useThree((s) => s.invalidate)
+  useEffect(() => {
+    const idle = reduced ? 'demand' : 'always'
+    sceneStore.setCovered = (covered) => {
+      setFrameloop(covered ? 'never' : idle)
+      if (!covered) invalidate()
+    }
+    if (sceneStore.rig.dim > 0.995) setFrameloop('never')
+    return () => {
+      sceneStore.setCovered = undefined
+    }
+  }, [reduced, setFrameloop, invalidate])
+  return null
+}
+
 /** Renderer tone mapping is only used when the post stack (which tone-maps itself) is off. */
 function ToneMappingSync({ effects }: { effects: boolean }) {
   const gl = useThree((s) => s.gl)
@@ -66,6 +84,10 @@ export interface StageProps {
  */
 export default function Stage({ tier, reduced, parallax, onReady }: StageProps) {
   const high = tier === 'high'
+  // Runs once, before any engine part creates its canvas textures.
+  useState(() => {
+    textureQuality.supersample = high ? 2 : 1.25
+  })
   const [dprCap, setDprCap] = useState(high ? 1.75 : 1.25)
   const [effects, setEffects] = useState(high)
 
@@ -98,6 +120,7 @@ export default function Stage({ tier, reduced, parallax, onReady }: StageProps) 
       )}
       <ToneMappingSync effects={effects} />
       <DemandBridge />
+      <CoverBridge reduced={reduced} />
       <ReadySignal onReady={onReady} />
     </Canvas>
   )

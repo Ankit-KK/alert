@@ -181,7 +181,7 @@ export const OVERLAY_STYLES: OverlayStyle[] = [
 ]
 
 export const REVIEW_QUEUE = [
-  { id: 'r1', user: 'orbit.jay', text: 'that pixel-perfect jump though', status: 'Shown' },
+  { id: 'r1', user: 'orbit.jay', text: 'that ring-gate boost though', status: 'Shown' },
   { id: 'r2', user: 'lowpoly_lu', text: 'play the HYPE pad pls', status: 'Shown' },
   { id: 'r3', user: 'anon_8812', text: 'Message held — contains a blocked term', status: 'Held' },
 ] as const

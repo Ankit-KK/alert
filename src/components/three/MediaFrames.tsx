@@ -14,15 +14,16 @@ const FRAMES: { x: number; y: number; z: number; ry: number }[] = [
 ]
 
 /**
- * Media station: three framed visual pieces standing in for GIFs and clips.
- * They fan open as the station takes focus and the centre frame "pops" when a
- * media interaction reaches the core.
+ * Media station: three framed pieces a viewer might send — a looping GIF, a
+ * replay clip (centre) and a reaction sticker. They fan open as the station
+ * takes focus and the centre clip "pops" when a media interaction reaches the
+ * core.
  */
 export function MediaFrames({ kit, reduced }: { kit: StageKit; reduced: boolean }) {
   const group = useRef<THREE.Group>(null)
   const frames = useRef<(THREE.Group | null)[]>([])
   const textures = useDisposable(makeMediaTextures)
-  const mats = useDisposable(() => textures.map((map) => new THREE.MeshBasicMaterial({ map, toneMapped: false, color: '#E4E4DE' })), [textures])
+  const mats = useDisposable(() => textures.map((map) => new THREE.MeshBasicMaterial({ map, toneMapped: false, color: '#EDEDEA' })), [textures])
 
   useFrame(() => {
     const t = now()

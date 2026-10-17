@@ -17,7 +17,7 @@ const dummy = new THREE.Object3D()
 export function WaveRing({ count, reduced }: { count: number; reduced: boolean }) {
   const mesh = useRef<THREE.InstancedMesh>(null)
   const material = useDisposable(
-    () => new THREE.MeshStandardMaterial({ color: '#7E8B90', roughness: 0.45, metalness: 0.3, emissive: PALETTE.cyan, emissiveIntensity: 0.12 }),
+    () => new THREE.MeshStandardMaterial({ color: '#3B474D', roughness: 0.6, metalness: 0.2, emissive: PALETTE.cyan, emissiveIntensity: 0.06 }),
   )
   const geometry = useDisposable(() => new THREE.BoxGeometry(0.018, 1, 0.045))
 
@@ -42,7 +42,7 @@ export function WaveRing({ count, reduced }: { count: number; reduced: boolean }
     const pulse = Math.exp(-(t - sceneStore.lastPulse) * 2.2)
     const voice = sceneStore.voiceActive ? 0.35 + Math.exp(-(t - sceneStore.voiceWord) * 6) * 0.6 : 0
     const energy = Math.min(1.2, pulse + sceneStore.audioLevel * 1.2 + voice)
-    material.emissiveIntensity = 0.12 + energy * 1.8
+    material.emissiveIntensity = 0.06 + energy * 2.2
 
     if (reduced && energy < 0.01) return
     for (let i = 0; i < count; i++) {

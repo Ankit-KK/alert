@@ -47,6 +47,8 @@ export interface SceneStore {
   ready: boolean
   /** Requests frames when the canvas renders on demand (reduced motion). */
   invalidate?: (frames?: number) => void
+  /** Pauses (true) or resumes the render loop while the dim layer fully covers the stage. */
+  setCovered?: (covered: boolean) => void
 }
 
 export const sceneStore: SceneStore = {

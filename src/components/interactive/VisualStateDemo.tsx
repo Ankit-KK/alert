@@ -170,29 +170,51 @@ export function VisualStateDemo() {
               style={{ ...layer(0, 0), transform: `translateZ(70px) translateY(${state === 0 ? 0 : -8}px)` }}
             >
               <div className="flex items-center gap-3">
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-ivory font-display text-sm font-bold text-obsidian">O</span>
-                <span className="min-w-0">
-                  <span className="block text-xs text-mist">orbit.jay</span>
-                  <span className="block truncate text-sm font-medium text-ivory sm:text-base">that pixel-perfect jump though</span>
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[linear-gradient(140deg,#B6E8D8,#38DDE8)] font-display text-[0.8125rem] font-bold tracking-tight text-obsidian ring-2 ring-graphite">
+                  OJ
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center gap-2 text-xs text-mist">
+                    <span className="font-display font-semibold text-ivory/90">orbit.jay</span>
+                    <span className="h-1 w-1 shrink-0 rounded-full bg-mist/60" />
+                    <span>now</span>
+                  </span>
+                  <span className="mt-0.5 block truncate text-sm font-medium text-ivory sm:text-base">that ring-gate boost though</span>
                 </span>
               </div>
             </div>
 
             {/* Media card */}
             <div
-              className="absolute -right-2 -bottom-8 w-[34%] overflow-hidden rounded-2xl border border-line bg-ivory shadow-2xl transition-all duration-700 ease-[var(--ease-out-expo)] sm:-right-8"
+              className="absolute -right-2 -bottom-8 w-[34%] overflow-hidden rounded-2xl border border-line bg-raised shadow-2xl transition-all duration-700 ease-[var(--ease-out-expo)] sm:-right-8"
               style={{ ...layer(1, 1), transform: `translateZ(110px) scale(${state >= 1 ? 1 : 0.85})` }}
             >
-              <svg viewBox="0 0 160 120" className="block w-full">
-                <rect width="160" height="120" fill="#F3F1E9" />
-                {[46, 36, 26, 16].map((r, i) => (
-                  <circle key={r} cx="80" cy="62" r={r} fill="none" stroke={i % 2 ? '#080C0F' : '#FF7048'} strokeWidth="5" />
-                ))}
-                <rect x="10" y="10" width="40" height="14" rx="4" fill="#080C0F" />
-                <text x="30" y="20.5" textAnchor="middle" fontFamily="Space Grotesk Variable, sans-serif" fontSize="9" fontWeight="700" fill="#F3F1E9">
-                  GIF
-                </text>
-              </svg>
+              <div className="relative aspect-[4/3] overflow-hidden bg-obsidian">
+                <img
+                  src="/media/clip-boost.webp"
+                  alt=""
+                  width={720}
+                  height={720}
+                  decoding="async"
+                  loading="lazy"
+                  draggable={false}
+                  className="absolute inset-0 h-full w-full object-cover object-[50%_60%]"
+                />
+                <span className="absolute inset-x-0 bottom-0 h-1/2 bg-linear-to-t from-obsidian/70 to-transparent" />
+                <span className="absolute top-2 left-2 rounded-[5px] bg-obsidian/85 px-1.5 py-[3px] font-display text-[11px] leading-none font-bold tracking-[0.12em] text-mint">
+                  CLIP
+                </span>
+                <span className="absolute right-2 bottom-2 rounded-[5px] bg-obsidian/80 px-1.5 py-[3px] font-display text-[11px] leading-none font-semibold text-ivory tabular-nums">
+                  0:06
+                </span>
+              </div>
+              <div className="flex min-w-0 items-center gap-2 px-2.5 py-2 sm:px-3">
+                <span className="h-5 w-0.5 shrink-0 rounded-full bg-mint" />
+                <span className="min-w-0">
+                  <span className="block truncate font-display text-[11px] font-semibold text-mist sm:text-xs">orbit.jay</span>
+                  <span className="block truncate text-[11px] font-medium text-ivory sm:text-[0.8125rem]">ring gate boost</span>
+                </span>
+              </div>
             </div>
           </div>
         </div>

@@ -74,7 +74,7 @@ export function StageLayer({
       {/* Readability layers. Opacities are written directly by the scene director. */}
       <div
         ref={veilRef}
-        className="absolute inset-0 hidden bg-[linear-gradient(90deg,#080C0F_0%,rgba(8,12,15,0.94)_36%,rgba(8,12,15,0)_60%)] md:block"
+        className="absolute inset-0 hidden bg-[linear-gradient(90deg,#080C0F_0%,rgba(8,12,15,0.97)_40%,rgba(8,12,15,0)_62%)] md:block"
         style={{ opacity: 0 }}
       />
       <div ref={dimRef} className="absolute inset-0 bg-obsidian" style={{ opacity: 0 }} />

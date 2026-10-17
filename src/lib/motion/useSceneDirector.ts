@@ -34,6 +34,7 @@ export function useSceneDirector(options: {
     let ids: SectionId[] = []
     let anchors: number[] = []
     let active: SectionId | null = null
+    let covered = false
 
     const measure = () => {
       const sections = Array.from(document.querySelectorAll<HTMLElement>('section[data-scene]'))
@@ -62,6 +63,12 @@ export function useSceneDirector(options: {
 
       if (dimRef.current) dimRef.current.style.opacity = sceneStore.rig.dim.toFixed(3)
       if (veilRef.current) veilRef.current.style.opacity = sceneStore.rig.veil.toFixed(3)
+      // No point rendering a stage nobody can see.
+      const nowCovered = sceneStore.rig.dim > 0.995
+      if (nowCovered !== covered) {
+        covered = nowCovered
+        sceneStore.setCovered?.(covered)
+      }
 
       const next = raw < 0.5 ? ids[k] : ids[k + 1]
       if (next && next !== active) {
