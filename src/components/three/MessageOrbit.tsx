@@ -13,7 +13,7 @@ type Home = [number, number, number]
 /**
  * Docked home positions around the display (hero composition). On desktop the
  * cards render larger for legibility, so they sit a little wider of the media
- * frames and the headline; narrow viewports keep the compact layout.
+ * frames and the headline; mobile frames use the compact layout.
  */
 const HOMES: Home[] = [
   [-1.5, 2.45, 0.6],
@@ -29,6 +29,19 @@ const HOMES_COMPACT: Home[] = [
   [-2.15, -0.25, 1.3],
   [0.35, -2.25, 1.9],
 ]
+/**
+ * Phones under 420 px wide pull the two mid-height cards in to |x| 1.6, so
+ * the orbit spans little more than the display and no card is cut at a
+ * screen edge even when the engine is framed to the full width.
+ */
+const HOMES_NARROW: Home[] = [
+  [-1.55, 2.05, 0.6],
+  [1.65, 1.95, 0.4],
+  [1.6, 0.3, 1.2],
+  [-1.6, -0.25, 1.3],
+  [0.35, -2.25, 1.9],
+]
+const NARROW_WIDTH = 420
 
 /** Desktop cards render larger than the kit's card slab so their copy stays legible. */
 const CARD_SCALE = 1.22
@@ -40,6 +53,39 @@ const TRAVEL = 1.25
 const RESPAWN = 0.7
 
 const corePoint = new THREE.Vector3(WORLD.core[0], WORLD.core[1] + 0.45, WORLD.core[2])
+/** The HC badge's centre (see Core) and the radius its halo arcs reach. */
+const BADGE_X = WORLD.core[0]
+const BADGE_Y = WORLD.core[1] + 0.74
+const HALO_RADIUS = 1
+
+/** The first `end` fraction of a curve, re-parameterised to 0…1. */
+class CurveHead extends THREE.Curve<THREE.Vector3> {
+  base: THREE.Curve<THREE.Vector3>
+  end: number
+  constructor(base: THREE.Curve<THREE.Vector3>, end: number) {
+    super()
+    this.base = base
+    this.end = end
+  }
+  getPoint(t: number, target = new THREE.Vector3()) {
+    return this.base.getPoint(t * this.end, target)
+  }
+}
+
+/**
+ * A tether follows a card's arc but stops where the arc enters the halo, so
+ * no line is ever drawn across the HC mark.
+ */
+function tetherFor(curve: THREE.Curve<THREE.Vector3>) {
+  const p = new THREE.Vector3()
+  const insideHalo = (t: number) => {
+    curve.getPoint(t, p)
+    return Math.hypot(p.x - BADGE_X, p.y - BADGE_Y) < HALO_RADIUS
+  }
+  let end = 1
+  while (end > 0.05 && insideHalo(end)) end -= 0.005
+  return new CurveHead(curve, end)
+}
 
 /**
  * Live messages floating around the stream. On a fixed cadence one card
@@ -50,7 +96,8 @@ const corePoint = new THREE.Vector3(WORLD.core[0], WORLD.core[1] + 0.45, WORLD.c
 export function MessageOrbit({ kit, count, reduced }: { kit: StageKit; count: number; reduced: boolean }) {
   const messages = ENGINE_MESSAGES.slice(0, count)
   const compact = useThree((s) => isMobileAspect(s.size.width, s.size.height))
-  const homes = compact ? HOMES_COMPACT : HOMES
+  const narrow = useThree((s) => s.size.width < NARROW_WIDTH)
+  const homes = narrow ? HOMES_NARROW : compact ? HOMES_COMPACT : HOMES
   const cardScale = compact ? 1 : CARD_SCALE
   const textures = useDisposable(() => messages.map(makeMessageTexture), [count])
   const faceMats = useDisposable(
@@ -69,7 +116,7 @@ export function MessageOrbit({ kit, count, reduced }: { kit: StageKit; count: nu
       }),
     [count, homes],
   )
-  const arcGeos = useDisposable(() => curves.map((c) => new THREE.TubeGeometry(c, 48, 0.006, 5, false)), [curves])
+  const arcGeos = useDisposable(() => curves.map((c) => new THREE.TubeGeometry(tetherFor(c), 48, 0.006, 5, false)), [curves])
   const arcMat = useDisposable(() => kit.mat.arc.clone(), [kit])
 
   const cards = useRef<(THREE.Group | null)[]>([])
@@ -81,7 +128,8 @@ export function MessageOrbit({ kit, count, reduced }: { kit: StageKit; count: nu
     const sep = engineState.sep
     const L = loop.current
 
-    if (!reduced && t >= L.nextAt) {
+    // No new deliveries while the HC mark holds the stage alone.
+    if (!reduced && engineState.solo < 0.5 && t >= L.nextAt) {
       L.index = (L.index + 1) % messages.length
       L.startedAt = t
       L.nextAt = t + CYCLE

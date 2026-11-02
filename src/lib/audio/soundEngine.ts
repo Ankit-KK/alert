@@ -26,6 +26,13 @@ const MUTE_KEY = 'hc:sound-muted'
 
 type Channel = 'sfx' | 'voice'
 
+/**
+ * How a play request settled: it started (`played`), was skipped because demo
+ * sounds are off (`muted`), couldn't load or decode (`failed`), or was cut off
+ * by a newer clip or a stop() before it could start (`superseded`).
+ */
+export type PlayResult = 'played' | 'muted' | 'failed' | 'superseded'
+
 interface Playing {
   source: AudioBufferSourceNode
   gain: GainNode
@@ -35,6 +42,7 @@ interface Playing {
 
 export interface VoiceHandlers {
   onStart?: (duration: number) => void
+  /** Playback finished, or the request was stopped or superseded (while loading or playing). */
   onEnd?: () => void
   onError?: () => void
 }
@@ -56,6 +64,8 @@ class SoundEngine {
   private bytes = new Map<string, Promise<ArrayBuffer | null>>()
   private buffers = new Map<string, Promise<AudioBuffer | null>>()
   private current: Playing | null = null
+  /** Handlers of the request whose clip is still loading, so a newer clip or stop() can end it. */
+  private pending: VoiceHandlers | null = null
   private token = 0
   private raf = 0
   private activeUntil = 0
@@ -150,9 +160,12 @@ class SoundEngine {
     this.ensure()
   }
 
-  /** Fades out and releases whatever is playing. */
+  /** Fades out and releases whatever is playing, and ends a request that is still loading. */
   stop() {
     this.token++
+    const pending = this.pending
+    this.pending = null
+    pending?.onEnd?.()
     const cur = this.current
     this.current = null
     if (!cur || !this.ctx) return
@@ -171,20 +184,28 @@ class SoundEngine {
     onEnd?.()
   }
 
-  private async start(url: string, channel: Channel, handlers: VoiceHandlers = {}): Promise<number> {
+  private async start(url: string, channel: Channel, handlers: VoiceHandlers = {}): Promise<PlayResult> {
     const ctx = this.ensure()
     if (!ctx || !this.master) {
       handlers.onError?.()
-      return 0
+      return 'failed'
     }
     this.stop()
     const token = this.token
+    this.pending = handlers
     const buffer = await this.decode(ctx, url)
-    // A newer press (or a stop) arrived while this clip was loading.
-    if (token !== this.token) return 0
+    // A newer clip (or a stop) arrived while this one was loading; stop() has
+    // already ended this request through its own handlers.
+    if (token !== this.token) return 'superseded'
+    this.pending = null
+    // Demo sounds were switched off while the effect was loading.
+    if (channel === 'sfx' && this.muted) {
+      handlers.onEnd?.()
+      return 'muted'
+    }
     if (!buffer) {
       handlers.onError?.()
-      return 0
+      return 'failed'
     }
 
     const gain = ctx.createGain()
@@ -209,17 +230,22 @@ class SoundEngine {
     this.activeUntil = performance.now() + (buffer.duration + 0.3) * 1000
     this.watchLevel()
     handlers.onStart?.(buffer.duration)
-    return buffer.duration
+    return 'played'
   }
 
-  /** Plays a pad or interface effect by id (respects mute). Resolves to its length in seconds. */
-  play(id: string): Promise<number> {
+  /** Plays a pad or interface effect by id (respects mute). Resolves once it starts or can't. */
+  play(id: string): Promise<PlayResult> {
     const url = SFX_URLS[id]
-    if (!url || this.muted) return Promise.resolve(0)
+    if (!url) return Promise.resolve('failed')
+    if (this.muted) return Promise.resolve('muted')
     return this.start(url, 'sfx')
   }
 
-  /** Plays a voice sample. Handlers fire only for real playback, never optimistically. */
+  /**
+   * Plays a voice sample. Handlers fire only for real playback, never
+   * optimistically; onEnd also fires if a newer clip or stop() cuts the
+   * request off while it is still loading.
+   */
   playVoice(url: string, handlers: VoiceHandlers) {
     return this.start(url, 'voice', handlers)
   }

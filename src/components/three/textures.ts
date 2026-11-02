@@ -33,6 +33,8 @@ const MAX_EDGE = 2048
  * quality tier before any texture is created (about a third of the GPU memory).
  */
 export const textureQuality = { supersample: 2 }
+/** True once the stage has picked the low tier (it lowers supersampling first). */
+const lowTier = () => textureQuality.supersample < 2
 
 const base = import.meta.env.BASE_URL
 /** Original illustrative game stills made for this page. */
@@ -245,6 +247,8 @@ function liveBadge(ctx: Ctx, x: number, y: number, height: number) {
  * The creator's broadcast: the race-footage still with stream chrome on top.
  * The still's HUD keeps its own minimap top-left, so the LIVE badge sits just
  * beside it; the top-right of the frame is open sky, reserved for alerts.
+ * It is the stage's largest texture: 1600×900 on the high tier, 1024×576 on
+ * the low tier, whose DPR cap keeps the display well under that on screen.
  */
 export function makeScreenTexture() {
   return canvasTexture(
@@ -279,7 +283,7 @@ export function makeScreenTexture() {
 
       liveBadge(ctx, 188, 34, 54)
     },
-    { scale: 1, images: [MEDIA.stream] },
+    { scale: lowTier() ? 0.64 : 1, images: [MEDIA.stream] },
   )
 }
 
@@ -466,8 +470,8 @@ export function makeMessageTexture(message: EngineMessage) {
 }
 
 const ALERT_COPY: Record<InteractionKind, [string, string]> = {
-  chat: ['CHAT HIGHLIGHT', 'Message pinned to stream'],
-  voice: ['VOICE MESSAGE', 'Read aloud on air'],
+  chat: ['MESSAGE', 'Shown on stream'],
+  voice: ['VOICE MESSAGE', 'Played on air'],
   sound: ['SOUNDBOARD', 'Sound pad played on air'],
   media: ['MEDIA', 'Reaction clip on screen'],
 }
@@ -800,11 +804,11 @@ export function makeVoicePanelTexture() {
     ctx.fillStyle = 'rgba(243,241,233,0.1)'
     ctx.fillRect(64, 168, w - 128, 2)
 
-    // The message itself.
+    // The message itself, set large so it still reads on the hero miniature.
     ctx.fillStyle = PALETTE.ivory
-    ctx.font = `600 58px ${DISPLAY}`
-    centredText(ctx, '“Run it back one', 64, 240)
-    centredText(ctx, 'more time!”', 64, 312)
+    ctx.font = `600 70px ${DISPLAY}`
+    centredText(ctx, '“Run it back one', 64, 238)
+    centredText(ctx, 'more time!”', 64, 322)
 
     // Playhead.
     const y = h - 78

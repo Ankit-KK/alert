@@ -8,30 +8,43 @@ import { lerp3, useDisposable, type StageKit } from './kit'
 import { makeVoicePanelTexture, PALETTE } from './textures'
 
 const SEGMENTS = 96
-const WIDTH = 2.5
+/** Ribbon length: inside the 2.2-wide face with margin for the panel's yaw. */
+const WIDTH = 1.9
+const HEIGHT = 0.05
 
-/** Builds a flat strip whose vertices are displaced every frame into a ribbon. */
-function makeRibbon(height: number) {
-  return new THREE.PlaneGeometry(WIDTH, height, SEGMENTS, 1)
+/**
+ * Lays the ribbon's two vertex rows along a waveform of the given amplitude.
+ * The strip's thickness tapers with the envelope, so both ends come to a point.
+ */
+function shapeRibbon(pos: THREE.BufferAttribute, t: number, amp: number) {
+  for (let i = 0; i < pos.count; i++) {
+    const u = (i % (SEGMENTS + 1)) / SEGMENTS
+    const env = Math.sin(u * Math.PI)
+    const wave = Math.sin(u * 18 + t * 6) * 0.6 + Math.sin(u * 41 - t * 9) * 0.4
+    const edge = ((i > SEGMENTS ? -HEIGHT : HEIGHT) / 2) * Math.sqrt(env)
+    pos.setXYZ(i, (u - 0.5) * WIDTH, edge + wave * env * amp * 1.6, Math.cos(u * 9 + t * 2) * 0.03 * env)
+  }
+  pos.needsUpdate = true
 }
 
 /**
  * Voice station: a smoked-graphite panel carrying a sample voice message, with
- * two audio ribbons in front of it. The ribbons follow the voice preview's word
- * boundaries (and soundboard output) so the visual is tied to real playback.
+ * an audio ribbon just in front of it. The ribbon follows the voice preview's
+ * word boundaries (and soundboard output) so the visual is tied to real
+ * playback, and tapers to a point at both ends.
  */
 export function VoiceModule({ kit, reduced, lowDetail }: { kit: StageKit; reduced: boolean; lowDetail: boolean }) {
   const group = useRef<THREE.Group>(null)
   const light = useRef<THREE.PointLight>(null)
   const face = useDisposable(makeVoicePanelTexture)
   const faceMat = useDisposable(() => new THREE.MeshBasicMaterial({ map: face, transparent: true, depthWrite: false, toneMapped: false }), [face])
-  const ribbonA = useDisposable(() => makeRibbon(0.05))
-  const ribbonB = useDisposable(() => makeRibbon(0.022))
-  const matA = useDisposable(
+  const ribbon = useDisposable(() => {
+    const geo = new THREE.PlaneGeometry(WIDTH, HEIGHT, SEGMENTS, 1)
+    shapeRibbon(geo.attributes.position as THREE.BufferAttribute, 0, 0)
+    return geo
+  })
+  const ribbonMat = useDisposable(
     () => new THREE.MeshStandardMaterial({ color: PALETTE.teal, emissive: PALETTE.cyan, emissiveIntensity: 0.6, side: THREE.DoubleSide, roughness: 0.3 }),
-  )
-  const matB = useDisposable(
-    () => new THREE.MeshStandardMaterial({ color: '#D9DDD8', emissive: PALETTE.ivory, emissiveIntensity: 0.15, side: THREE.DoubleSide, roughness: 0.5 }),
   )
   const amp = useRef(0)
 
@@ -51,26 +64,11 @@ export function VoiceModule({ kit, reduced, lowDetail }: { kit: StageKit; reduce
     const word = Math.exp(-(t - sceneStore.voiceWord) * 5)
     const target = sceneStore.voiceActive ? 0.12 + word * 0.22 : 0.025 + sceneStore.audioLevel * 0.15
     amp.current = THREE.MathUtils.damp(amp.current, target, 10, dt)
-    matA.emissiveIntensity = 0.5 + amp.current * 6
+    ribbonMat.emissiveIntensity = 0.5 + amp.current * 6
     if (light.current) light.current.intensity = 0.4 + amp.current * 18
 
     if (reduced && !sceneStore.voiceActive) return
-    for (const [geo, phase, scale] of [
-      [ribbonA, 0, 1],
-      [ribbonB, 1.7, 0.6],
-    ] as const) {
-      const pos = geo.attributes.position as THREE.BufferAttribute
-      for (let i = 0; i < pos.count; i++) {
-        const col = i % (SEGMENTS + 1)
-        const u = col / SEGMENTS
-        const x = (u - 0.5) * WIDTH
-        const env = Math.sin(u * Math.PI)
-        const wave = Math.sin(u * 18 + t * 6 + phase) * 0.6 + Math.sin(u * 41 - t * 9 + phase) * 0.4
-        const yOffset = i > SEGMENTS ? -geo.parameters.height / 2 : geo.parameters.height / 2
-        pos.setXYZ(i, x, yOffset + wave * env * amp.current * scale * 2.2, Math.cos(u * 9 + t * 2 + phase) * 0.08 * env)
-      }
-      pos.needsUpdate = true
-    }
+    shapeRibbon(ribbon.attributes.position as THREE.BufferAttribute, t, amp.current)
   })
 
   return (
@@ -78,11 +76,10 @@ export function VoiceModule({ kit, reduced, lowDetail }: { kit: StageKit; reduce
       <mesh geometry={kit.geo.slab} material={kit.mat.graphite} />
       <mesh geometry={kit.geo.plane} material={faceMat} position={[0, 0.06, 0.045]} scale={[2.2, 1.24, 1]} />
       <mesh geometry={kit.geo.plane} material={kit.mat.glass} position={[0, 0, 0.05]} scale={[2.2, 1.26, 1]} />
-      <group position={[0, -0.2, 0.32]}>
-        <mesh geometry={ribbonA} material={matA} />
-        <mesh geometry={ribbonB} material={matB} position={[0, -0.02, 0.06]} />
-      </group>
-      {!lowDetail && <pointLight ref={light} color={PALETTE.cyan} position={[0, -0.1, 0.9]} distance={3.5} decay={2} />}
+      {/* Just clear of the glass (z 0.05), so it reads as part of the panel. */}
+      <mesh geometry={ribbon} material={ribbonMat} position={[0, -0.2, 0.1]} />
+      {/* Below the panel: lights the ribbon and slab edge without a specular dot on the glass. */}
+      {!lowDetail && <pointLight ref={light} color={PALETTE.cyan} position={[0, -1, 0.45]} distance={3.5} decay={2} />}
     </group>
   )
 }

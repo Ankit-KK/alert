@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import { WORLD } from '@/lib/three/layout'
 import { sceneStore } from '@/lib/three/sceneStore'
 import type { QualityTier } from '@/lib/three/capabilities'
 import { Core } from './Core'
@@ -12,6 +13,12 @@ import { PadCluster } from './PadCluster'
 import { StreamDisplay } from './StreamDisplay'
 import { VoiceModule } from './VoiceModule'
 import { WaveRing } from './WaveRing'
+
+/**
+ * Where the modules fold to (they scale about this point): just behind the
+ * puck, below the rising HC mark, so nothing collapses across the logo.
+ */
+const FOLD_PIVOT = new THREE.Vector3(WORLD.core[0], WORLD.core[1] + 0.1, WORLD.core[2] - 0.6)
 
 /**
  * The HyperChat Interaction Engine — the page's single 3D composition.
@@ -52,9 +59,12 @@ export function Engine({ tier, reduced }: { tier: QualityTier; reduced: boolean 
 
     const m = modules.current
     if (m) {
-      const fold = 1 - easeOutCubic(1 - engineState.solo)
-      m.visible = fold < 0.995
-      m.scale.setScalar(Math.max(0.001, 1 - fold))
+      // Front-loaded: the modules are gone by solo 0.5, long before the mark
+      // settles, so no miniature part is ever drawn over the logo.
+      const fold = THREE.MathUtils.smoothstep(engineState.solo, 0, 0.5)
+      m.visible = fold < 0.98
+      m.scale.setScalar(1 - fold)
+      m.position.copy(FOLD_PIVOT).multiplyScalar(fold)
     }
   })
 

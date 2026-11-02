@@ -39,9 +39,20 @@ export function LiveBadge({ className = '' }: { className?: string }) {
  * A simulated broadcast frame — the sample game footage, a LIVE tag and a
  * soft top/bottom vignette so overlays stay legible. Used by the
  * visual-interactions and creator-control previews. Children render as
- * overlay content inside the frame.
+ * overlay content inside the frame; `badge` moves the LIVE tag to the corner
+ * the overlays leave free.
  */
-export function StreamViewport({ children, className = '', label }: { children?: ReactNode; className?: string; label: string }) {
+export function StreamViewport({
+  children,
+  className = '',
+  label,
+  badge = 'left',
+}: {
+  children?: ReactNode
+  className?: string
+  label: string
+  badge?: 'left' | 'right'
+}) {
   return (
     <div className={`relative aspect-video overflow-hidden rounded-xl bg-[#0B1317] ${className}`} role="img" aria-label={label}>
       <StreamFrameImage />
@@ -53,7 +64,7 @@ export function StreamViewport({ children, className = '', label }: { children?:
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_45%,rgba(8,12,15,0)_60%,rgba(8,12,15,0.45)_100%)]"
       />
-      <LiveBadge className="absolute top-[5%] left-[3.5%]" />
+      <LiveBadge className={`absolute top-[5%] ${badge === 'right' ? 'right-[3.5%]' : 'left-[3.5%]'}`} />
       {children}
     </div>
   )

@@ -24,6 +24,8 @@ export function VoiceDemo() {
   const [startedAt, setStartedAt] = useState(0)
   const [duration, setDuration] = useState(VOICE_SAMPLES[0].duration)
   const visualTimer = useRef(0)
+  // Id of the latest play request; callbacks from an older one are ignored.
+  const request = useRef(0)
   const groupName = useId()
   const sample = VOICE_SAMPLES.find((s) => s.id === selected) ?? VOICE_SAMPLES[0]
   const active = status === 'playing' || status === 'visual'
@@ -41,6 +43,7 @@ export function VoiceDemo() {
   }, [status])
 
   const stop = () => {
+    request.current++
     window.clearTimeout(visualTimer.current)
     sceneStore.voiceActive = false
     soundEngine.stop()
@@ -59,15 +62,20 @@ export function VoiceDemo() {
   const onToggle = () => {
     if (status === 'playing' || status === 'loading' || status === 'visual') return stop()
     if (!audioOk) return startVisual()
+    const id = ++request.current
+    const current = () => request.current === id
     setStatus('loading')
+    // onEnd also arrives when another demo sound (a pad, the visuals chime)
+    // cuts this sample off, even while it is still loading.
     void soundEngine.playVoice(sample.src, {
       onStart: (d) => {
+        if (!current()) return
         setDuration(d)
         setStartedAt(performance.now())
         setStatus('playing')
       },
-      onEnd: () => setStatus('idle'),
-      onError: () => setStatus('failed'),
+      onEnd: () => current() && setStatus('idle'),
+      onError: () => current() && setStatus('failed'),
     })
   }
 
@@ -135,12 +143,13 @@ export function VoiceDemo() {
 
       <div className="px-5 pt-5 pb-5">
         <Waveform peaks={sample.peaks} active={active} reduced={reduced} startedAt={startedAt} duration={duration} />
-        <div className="mt-4 flex flex-wrap items-center gap-4">
+        <div className="mt-4 flex flex-col items-start gap-3">
           <button type="button" onClick={onToggle} className="btn btn-primary" aria-describedby="voice-status">
             {busy ? <Pause aria-hidden="true" className="h-4 w-4" /> : <Play aria-hidden="true" className="h-4 w-4" />}
             {buttonLabel}
           </button>
-          <p id="voice-status" role="status" aria-live="polite" className="min-w-0 flex-1 text-sm text-mist">
+          {/* Its own line, so the text never squeezes into a sliver beside the button. */}
+          <p id="voice-status" role="status" aria-live="polite" className="text-sm text-mist">
             {statusText}
           </p>
         </div>

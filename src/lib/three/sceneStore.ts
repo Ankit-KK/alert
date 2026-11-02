@@ -27,6 +27,12 @@ export interface RigState {
 
 export interface SceneStore {
   rig: RigState
+  /**
+   * 0..1: how much of the rig is pinned to layout that moves with the page
+   * (the hero band on phones, the brand moment's mark slot). The camera follows
+   * that part tightly so the subject stays in its place instead of trailing it.
+   */
+  track: number
   /** Hero entrance progress, tweened 0 → 1 by the hero timeline. */
   intro: number
   /** Pointer in normalized device coordinates (-1..1), desktop only. */
@@ -49,6 +55,12 @@ export interface SceneStore {
   invalidate?: (frames?: number) => void
   /** Pauses (true) or resumes the render loop while the dim layer fully covers the stage. */
   setCovered?: (covered: boolean) => void
+  /**
+   * Set when the rig jumped while the stage wasn't rendering (it was covered);
+   * the camera then cuts straight to the rig on its next frame instead of
+   * easing in from a stale framing.
+   */
+  snap: boolean
 }
 
 export const sceneStore: SceneStore = {
@@ -61,6 +73,7 @@ export const sceneStore: SceneStore = {
     veil: 0,
     solo: 0,
   },
+  track: 0,
   intro: 0,
   pointer: { x: 0, y: 0 },
   audioLevel: 0,
@@ -70,6 +83,7 @@ export const sceneStore: SceneStore = {
   padHits: [-10, -10, -10, -10, -10, -10],
   lastPulse: -10,
   ready: false,
+  snap: true,
 }
 
 export const now = () => performance.now() / 1000

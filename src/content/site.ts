@@ -42,7 +42,7 @@ export const CAPABILITIES: Capability[] = [
   {
     index: '01',
     title: 'Voice',
-    body: 'Messages that speak on stream, so your community is heard — not just read.',
+    body: 'Voice messages that play on stream, so your community is heard — not just read.',
     href: '#experience',
   },
   {
@@ -180,11 +180,20 @@ export const OVERLAY_STYLES: OverlayStyle[] = [
   { id: 'ticker', label: 'Ticker', hint: 'Slim band along the bottom' },
 ]
 
-export const REVIEW_QUEUE = [
-  { id: 'r1', user: 'orbit.jay', text: 'that ring-gate boost though', status: 'Shown' },
-  { id: 'r2', user: 'lowpoly_lu', text: 'play the HYPE pad pls', status: 'Shown' },
-  { id: 'r3', user: 'anon_8812', text: 'Message held — contains a blocked term', status: 'Held' },
-] as const
+export interface QueueMessage {
+  id: string
+  user: string
+  text: string
+  /** Why a message was flagged. Its words stay masked in the preview. */
+  flag?: string
+}
+
+/** Sample creator-studio queue. Whether a flagged message is held depends on the review setting. */
+export const REVIEW_QUEUE: QueueMessage[] = [
+  { id: 'r1', user: 'orbit.jay', text: 'that ring-gate boost though' },
+  { id: 'r2', user: 'lowpoly_lu', text: 'play the HYPE pad pls' },
+  { id: 'r3', user: 'anon_8812', text: '•••• •••••• •••', flag: 'Blocked term' },
+]
 
 export interface Step {
   index: string

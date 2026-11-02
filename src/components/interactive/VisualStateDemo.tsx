@@ -1,24 +1,26 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
-import { RotateCcw, Volume2, VolumeX } from 'lucide-react'
+import { RotateCcw, Square } from 'lucide-react'
 import { VISUAL_STATES } from '@/content/site'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { soundEngine } from '@/lib/audio/soundEngine'
-import { useSoundMuted } from '@/lib/audio/useSoundMuted'
 import { now, sceneStore } from '@/lib/three/sceneStore'
+import { DemoSoundsToggle } from './DemoSoundsToggle'
 import { StreamViewport } from './StreamViewport'
 
 /**
  * Message → media → overlay, as a three-state composition with depth.
- * Tabs switch the state; "Play sequence" steps through all three. Layers that
- * are not the focus of the current state recede (blur + fade) to read as a
- * shallow depth of field. The overlay lands with a short alert chime unless
- * sound is switched off (shared with the soundboard's toggle).
+ * Tabs switch the state; "Play sequence" steps through all three, announcing
+ * each step, and becomes "Stop sequence" meanwhile so focus never drops. Layers
+ * that are not the focus of the current state recede (blur + fade) to read as
+ * a shallow depth of field. The overlay lands with a short alert chime when it
+ * is clicked or the sequence reaches it (never while arrowing through the
+ * tabs), unless demo sounds are off.
  */
 export function VisualStateDemo() {
   const reduced = useReducedMotion()
   const [state, setState] = useState(0)
   const [playing, setPlaying] = useState(false)
-  const [muted, toggleMute] = useSoundMuted()
+  const [announcement, setAnnouncement] = useState('')
   const tabs = useRef<(HTMLButtonElement | null)[]>([])
   const timers = useRef<number[]>([])
 
@@ -28,22 +30,41 @@ export function VisualStateDemo() {
   }
   useEffect(() => clearTimers, [])
 
-  const select = (i: number) => {
+  const select = (i: number, chime: boolean) => {
     setState(i)
     sceneStore.lastPulse = now()
     sceneStore.invalidate?.(60)
-    if (i === 2) void soundEngine.play('alert')
+    if (chime && i === 2) void soundEngine.play('alert')
   }
 
-  const play = () => {
+  /** A tab chosen by hand ends the sequence quietly. */
+  const choose = (i: number, chime: boolean) => {
     clearTimers()
+    setPlaying(false)
+    setAnnouncement('')
+    select(i, chime)
+  }
+
+  const step = (i: number) => {
+    const s = VISUAL_STATES[i]
+    setAnnouncement(`Step ${i + 1} of ${VISUAL_STATES.length}: ${s.label}. ${s.title}`)
+    select(i, true)
+  }
+
+  const toggleSequence = () => {
+    clearTimers()
+    if (playing) {
+      setPlaying(false)
+      setAnnouncement('Sequence stopped.')
+      return
+    }
     soundEngine.unlock()
     setPlaying(true)
-    select(0)
-    const step = reduced ? 1800 : 1600
-    timers.current.push(window.setTimeout(() => select(1), step))
-    timers.current.push(window.setTimeout(() => select(2), step * 2))
-    timers.current.push(window.setTimeout(() => setPlaying(false), step * 2 + 200))
+    step(0)
+    const interval = reduced ? 1800 : 1600
+    timers.current.push(window.setTimeout(() => step(1), interval))
+    timers.current.push(window.setTimeout(() => step(2), interval * 2))
+    timers.current.push(window.setTimeout(() => setPlaying(false), interval * 2 + 200))
   }
 
   const onTabKey = (e: KeyboardEvent<HTMLButtonElement>, i: number) => {
@@ -54,9 +75,8 @@ export function VisualStateDemo() {
     if (e.key === 'End') next = VISUAL_STATES.length - 1
     if (next < 0) return
     e.preventDefault()
-    clearTimers()
-    setPlaying(false)
-    select(next)
+    // Moving between tabs is navigation, so it stays silent (no chime over a screen reader).
+    choose(next, false)
     tabs.current[next]?.focus()
   }
 
@@ -85,11 +105,7 @@ export function VisualStateDemo() {
               aria-selected={state === i}
               aria-controls="visual-panel"
               tabIndex={state === i ? 0 : -1}
-              onClick={() => {
-                clearTimers()
-                setPlaying(false)
-                select(i)
-              }}
+              onClick={() => choose(i, true)}
               onKeyDown={(e) => onTabKey(e, i)}
               className={`group flex min-h-14 items-center gap-4 rounded-2xl border px-5 py-3 text-left transition-colors ${
                 state === i ? 'border-cyan/50 bg-raised text-ivory' : 'border-line text-mist hover:border-mist/40 hover:text-ivory'
@@ -111,27 +127,20 @@ export function VisualStateDemo() {
         </div>
 
         <div className="mt-6 flex flex-wrap items-center gap-3">
-          <button type="button" onClick={play} disabled={playing} className="btn btn-ghost disabled:opacity-50">
-            <RotateCcw aria-hidden="true" className="h-4 w-4" />
-            {playing ? 'Playing sequence…' : 'Play sequence'}
+          <button type="button" onClick={toggleSequence} className="btn btn-ghost">
+            {playing ? <Square aria-hidden="true" className="h-3.5 w-3.5" /> : <RotateCcw aria-hidden="true" className="h-4 w-4" />}
+            {playing ? 'Stop sequence' : 'Play sequence'}
           </button>
-          {soundEngine.supported && (
-            <button
-              type="button"
-              onClick={toggleMute}
-              aria-pressed={!muted}
-              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line px-4 text-sm font-medium text-mist transition-colors hover:border-mist/50 hover:text-ivory"
-            >
-              {muted ? <VolumeX aria-hidden="true" className="h-4 w-4" /> : <Volume2 aria-hidden="true" className="h-4 w-4" />}
-              Alert chime
-            </button>
-          )}
+          {soundEngine.supported && <DemoSoundsToggle />}
         </div>
+        <p role="status" className="sr-only">
+          {announcement}
+        </p>
       </div>
 
-      {/* Composition */}
-      <div className="lg:col-span-7" aria-hidden="true">
-        <div className="relative mx-auto max-w-[44rem] [perspective:1600px]">
+      <div className="lg:col-span-7">
+        {/* Composition */}
+        <div aria-hidden="true" className="relative mx-auto max-w-[44rem] [perspective:1600px]">
           <div
             className="relative transition-transform duration-700 ease-[var(--ease-out-expo)] [transform-style:preserve-3d]"
             style={{ transform: `rotateY(${-10 + state * 4}deg) rotateX(5deg)` }}
@@ -141,7 +150,8 @@ export function VisualStateDemo() {
                 state === 2 ? 'border-signal/70 shadow-[0_0_0_1px_rgba(255,112,72,0.25),0_40px_80px_-40px_rgba(255,112,72,0.35)]' : 'border-line'
               } bg-graphite`}
             >
-              <StreamViewport label="Simulated stream with an on-screen alert">
+              {/* LIVE sits top-right here, clear of the message card that lands top-left. */}
+              <StreamViewport label="Simulated stream with an on-screen alert" badge="right">
                 {/* Overlay alert inside the broadcast */}
                 <div
                   className="absolute bottom-[7%] left-[4%] flex w-[56%] items-center gap-3 rounded-xl border-2 border-signal bg-obsidian/92 px-3 py-2 transition-all duration-500 ease-[var(--ease-out-expo)] sm:px-4 sm:py-3"
@@ -150,7 +160,7 @@ export function VisualStateDemo() {
                   <span className="h-8 w-1.5 shrink-0 rounded-full bg-signal" />
                   <span className="min-w-0">
                     <span className="block font-display text-[0.7rem] font-bold tracking-[0.08em] text-signal sm:text-xs">NEW MOMENT</span>
-                    <span className="block truncate text-xs text-ivory sm:text-sm">orbit.jay sent a reaction</span>
+                    <span className="line-clamp-2 text-xs text-ivory sm:text-sm">orbit.jay sent a reaction</span>
                   </span>
                 </div>
                 {/* Particles respond with the overlay */}
@@ -166,7 +176,7 @@ export function VisualStateDemo() {
 
             {/* Message card */}
             <div
-              className="absolute -top-6 -left-2 w-[58%] rounded-2xl border border-line bg-raised p-3 shadow-2xl transition-all duration-700 ease-[var(--ease-out-expo)] sm:-left-8 sm:p-4"
+              className="absolute -top-6 left-2 max-w-[72%] rounded-2xl border border-line bg-raised p-3 shadow-2xl transition-all duration-700 ease-[var(--ease-out-expo)] sm:max-w-[58%] sm:p-4 lg:-left-8"
               style={{ ...layer(0, 0), transform: `translateZ(70px) translateY(${state === 0 ? 0 : -8}px)` }}
             >
               <div className="flex items-center gap-3">
@@ -179,7 +189,7 @@ export function VisualStateDemo() {
                     <span className="h-1 w-1 shrink-0 rounded-full bg-mist/60" />
                     <span>now</span>
                   </span>
-                  <span className="mt-0.5 block truncate text-sm font-medium text-ivory sm:text-base">that ring-gate boost though</span>
+                  <span className="mt-0.5 line-clamp-2 text-sm font-medium text-ivory sm:text-base">that ring-gate boost though</span>
                 </span>
               </div>
             </div>

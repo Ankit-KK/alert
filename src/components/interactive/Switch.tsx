@@ -1,6 +1,9 @@
 import { useId } from 'react'
 
-/** Accessible on/off switch with a visible label and optional hint. */
+/**
+ * Accessible on/off switch with a visible label and optional hint. An
+ * invisible ::before stretches the 56×32 track's hit area to 44px tall.
+ */
 export function Switch({
   checked,
   onChange,
@@ -32,7 +35,7 @@ export function Switch({
         aria-labelledby={`${id}-label`}
         aria-describedby={hint ? `${id}-hint` : undefined}
         onClick={() => onChange(!checked)}
-        className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full border transition-colors duration-300 ${
+        className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full border transition-colors duration-300 before:absolute before:-inset-x-1 before:-inset-y-1.5 before:content-[''] ${
           checked ? 'border-cyan bg-teal' : 'border-line bg-obsidian'
         }`}
       >

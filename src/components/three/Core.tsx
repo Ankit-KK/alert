@@ -17,8 +17,8 @@ const SOLO_SCALE = 1.7
  * The interaction core: a machined puck with the HyperChat mark floating
  * above it, framed by a halo of counter-rotating arcs set behind the mark (so
  * nothing ever cuts through the logo). Every interaction that reaches the core
- * spins the halo up, flares the groove light and sends a shockwave across the
- * base plane. Audio playback drives its light.
+ * spins the halo up, brightens the groove light and sends a shockwave across
+ * the base plane. Audio playback drives its light.
  */
 export function Core({ kit, lowDetail, reduced }: { kit: StageKit; lowDetail: boolean; reduced: boolean }) {
   const base = useRef<THREE.Group>(null)
@@ -41,13 +41,16 @@ export function Core({ kit, lowDetail, reduced }: { kit: StageKit; lowDetail: bo
     const age = t - sceneStore.lastPulse
     const pulse = Math.exp(-age * 3)
     const level = sceneStore.audioLevel
-    const energy = Math.min(1.4, pulse + level)
     const solo = easeOutCubic(engineState.solo)
+    // The brand-solo moment stays still: no flare reaches the risen mark.
+    const energy = Math.min(1.4, pulse + level) * (1 - engineState.solo)
 
     groove.emissiveIntensity = 0.6 + energy * 2.4
     lens.emissiveIntensity = 0.9 + energy * 2
     arcGlow.emissiveIntensity = 0.5 + energy * 2.2
-    if (light.current) light.current.intensity = 1.2 + energy * 9
+    // Kept modest: the mark's faces are unlit, but its side walls and the
+    // puck pick this up, and a hard flare would wash them toward pastel.
+    if (light.current) light.current.intensity = 1.2 + energy * 2.4
 
     const b = base.current
     if (b) {

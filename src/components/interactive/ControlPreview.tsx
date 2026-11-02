@@ -1,5 +1,5 @@
-import { useId, useState } from 'react'
-import { AudioLines, LayoutTemplate, ListChecks, ShieldCheck, SlidersHorizontal } from 'lucide-react'
+import { useId, useState, type CSSProperties } from 'react'
+import { AudioLines, Flag, LayoutTemplate, ListChecks, ShieldCheck, SlidersHorizontal } from 'lucide-react'
 import { OVERLAY_STYLES, REVIEW_QUEUE, type OverlayStyle } from '@/content/site'
 import { StreamFrameImage, StreamViewport } from './StreamViewport'
 import { Switch } from './Switch'
@@ -11,6 +11,22 @@ const MODULES = [
   { label: 'Overlay', icon: LayoutTemplate, current: true },
   { label: 'Message review', icon: ShieldCheck },
 ]
+
+// A thin styled track and a 20px thumb inside a 44px-tall input, so the slider
+// is easy to grab on touch without looking heavy. `--fill` drives the cyan
+// portion in WebKit/Blink; Firefox draws it with ::-moz-range-progress.
+const RANGE_CLASS = [
+  'block h-11 w-full cursor-pointer appearance-none bg-transparent focus-visible:outline-none',
+  '[&::-webkit-slider-runnable-track]:h-1.5 [&::-webkit-slider-runnable-track]:rounded-full',
+  '[&::-webkit-slider-runnable-track]:bg-[linear-gradient(to_right,var(--color-cyan)_var(--fill),var(--color-line)_var(--fill))]',
+  '[&::-webkit-slider-thumb]:-mt-[7px] [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:appearance-none',
+  '[&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-ivory [&::-webkit-slider-thumb]:shadow-[0_2px_6px_rgba(0,0,0,0.5)]',
+  'focus-visible:[&::-webkit-slider-thumb]:shadow-[0_0_0_3px_#080C0F,0_0_0_5px_#38DDE8]',
+  '[&::-moz-range-track]:h-1.5 [&::-moz-range-track]:rounded-full [&::-moz-range-track]:bg-line',
+  '[&::-moz-range-progress]:h-1.5 [&::-moz-range-progress]:rounded-full [&::-moz-range-progress]:bg-cyan',
+  '[&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-ivory',
+  'focus-visible:[&::-moz-range-thumb]:shadow-[0_0_0_3px_#080C0F,0_0_0_5px_#38DDE8]',
+].join(' ')
 
 // Loudness envelope for the little voice-clip waveforms drawn in overlays.
 const WAVE = [0.35, 0.62, 0.48, 0.86, 0.58, 1, 0.52, 0.78, 0.4, 0.66, 0.3, 0.46]
@@ -76,7 +92,10 @@ function OverlaySample({ style, showMedia }: { style: OverlayStyle['id']; showMe
           VOICE
           <MiniWave className="hidden text-cyan/80 sm:flex" />
         </span>
-        <span className="block truncate text-ivory">kitecat: “Run it back…”</span>
+        {/* Phones get the sender alone rather than a quote cut to a fragment. */}
+        <span className="block truncate text-ivory">
+          kitecat<span className="hidden sm:inline">: “Run it back…”</span>
+        </span>
       </span>
     </div>
   )
@@ -224,7 +243,8 @@ export function ControlPreview() {
                 <label htmlFor={volumeId} className="text-[0.95rem] font-medium text-ivory">
                   Alert volume
                 </label>
-                <output htmlFor={volumeId} className="font-display text-sm font-semibold text-mist tabular-nums">
+                {/* Visual echo only: the slider itself announces "70%" via aria-valuetext. */}
+                <output htmlFor={volumeId} aria-hidden="true" className="font-display text-sm font-semibold text-mist tabular-nums">
                   {volume}%
                 </output>
               </div>
@@ -235,8 +255,10 @@ export function ControlPreview() {
                 max={100}
                 step={5}
                 value={volume}
+                aria-valuetext={`${volume}%`}
                 onChange={(e) => setVolume(Number(e.target.value))}
-                className="mt-3 h-2 w-full cursor-pointer accent-cyan"
+                className={`mt-0.5 ${RANGE_CLASS}`}
+                style={{ '--fill': `${volume}%` } as CSSProperties}
               />
             </div>
 
@@ -250,12 +272,29 @@ export function ControlPreview() {
               />
               <ul className="mt-4 divide-y divide-line rounded-xl border border-line" aria-label="Sample message queue">
                 {REVIEW_QUEUE.map((m) => {
-                  const held = m.status === 'Held' && holdForReview
+                  const held = !!m.flag && holdForReview
                   return (
                     <li key={m.id} className="flex items-center gap-3 px-3.5 py-2.5 text-sm">
                       <span className="min-w-0 flex-1">
-                        <span className="block text-xs text-mist">{m.user}</span>
-                        <span className="block truncate text-ivory">{m.text}</span>
+                        <span className="flex flex-wrap items-center gap-x-2 text-xs text-mist">
+                          {m.user}
+                          {m.flag && (
+                            <span className="inline-flex items-center gap-1 text-signal">
+                              <Flag aria-hidden="true" className="h-3 w-3" />
+                              {m.flag}
+                            </span>
+                          )}
+                        </span>
+                        {m.flag ? (
+                          <>
+                            <span aria-hidden="true" className="block truncate tracking-[0.12em] text-mist">
+                              {m.text}
+                            </span>
+                            <span className="sr-only">Message text hidden.</span>
+                          </>
+                        ) : (
+                          <span className="line-clamp-2 text-ivory sm:line-clamp-1">{m.text}</span>
+                        )}
                       </span>
                       <span
                         className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
@@ -282,7 +321,7 @@ export function ControlPreview() {
             </div>
             <StreamViewport
               className="border border-line"
-              label={`Stream preview with a ${overlay} overlay${showMedia ? ' and media' : ''}`}
+              label={`Preview: ${overlay} overlay showing kitecat’s voice message “Run it back one more time!”${showMedia ? ' with a clip thumbnail' : ', text only'}`}
             >
               <OverlaySample style={overlay} showMedia={showMedia} />
             </StreamViewport>
