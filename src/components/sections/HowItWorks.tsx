@@ -8,7 +8,7 @@ import { useReveal } from '@/hooks/useReveal'
 const VOICE_WAVE = [0.3, 0.55, 0.8, 0.5, 1, 0.7, 0.9, 0.45, 0.65, 0.85, 0.4, 0.6, 0.3, 0.5, 0.25]
 
 const TOGGLES = [
-  { icon: AudioLines, label: 'Voice', hint: 'Short recorded messages' },
+  { icon: AudioLines, label: 'Voice', hint: 'Voice messages on stream' },
   { icon: Volume2, label: 'Sounds', hint: 'Pads your chat can trigger' },
   { icon: Image, label: 'Media', hint: 'GIFs and clips with alerts' },
 ]
@@ -45,7 +45,7 @@ function StepArt({ index }: { index: number }) {
             </span>
             <span className="mb-1 min-w-0">
               <span className="block truncate font-display text-lg leading-tight font-semibold text-ivory">lowpoly_lu</span>
-              <span className="block truncate text-xs text-mist">Hover racing · Canyon tracks</span>
+              <span className="line-clamp-2 text-xs text-mist">Hover racing · Canyon tracks</span>
             </span>
           </div>
           <p className="mt-3 text-[0.8125rem] leading-snug text-[#C9D1D4]">Late-night time trials and low-poly racing lines. Say hi on stream.</p>
@@ -67,17 +67,18 @@ function StepArt({ index }: { index: number }) {
   }
   if (index === 1) {
     // Interaction settings: toggles, alert volume, and the soundboard pads viewers can play.
+    // In the narrow three-column layout (md to lg) the icon tiles drop out so the hints can wrap.
     return (
       <div className="rounded-2xl border border-line bg-graphite p-4 shadow-[0_30px_60px_-34px_rgba(0,0,0,0.9)]">
         <div className="flex flex-col gap-1.5">
           {TOGGLES.map(({ icon: Icon, label, hint }) => (
             <div key={label} className="flex items-center gap-3 rounded-lg bg-raised px-3 py-2">
-              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-obsidian text-cyan">
+              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-obsidian text-cyan md:max-lg:hidden">
                 <Icon className="h-3.5 w-3.5" />
               </span>
               <span className="min-w-0">
                 <span className="block text-sm leading-tight font-medium text-ivory">{label}</span>
-                <span className="block truncate text-[11px] leading-tight text-mist">{hint}</span>
+                <span className="line-clamp-2 text-[11px] leading-tight text-mist">{hint}</span>
               </span>
               <span className="ml-auto flex h-5 w-9 shrink-0 items-center justify-end rounded-full border border-cyan/70 bg-teal px-0.5">
                 <span className="h-3.5 w-3.5 rounded-full bg-ivory" />
@@ -124,10 +125,10 @@ function StepArt({ index }: { index: number }) {
         <StreamFrameImage />
         <span className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,12,15,0.5)_0%,rgba(8,12,15,0)_28%,rgba(8,12,15,0)_55%,rgba(8,12,15,0.75)_100%)]" />
         <LiveBadge className="absolute top-2.5 left-2.5" />
-        <span className="absolute bottom-2.5 left-2.5 flex max-w-[80%] items-center gap-2.5 rounded-lg border border-cyan/80 bg-obsidian/92 py-1.5 pr-3 pl-1.5 shadow-[0_0_24px_-6px_rgba(56,221,232,0.6)] sm:max-w-[70%]">
+        <span className="absolute bottom-2.5 left-2.5 flex max-w-[80%] items-center gap-2.5 rounded-lg border border-cyan/80 bg-obsidian/92 py-1.5 pr-3 pl-1.5 shadow-[0_0_24px_-6px_rgba(56,221,232,0.6)] sm:max-w-[70%] md:max-lg:max-w-[calc(100%-1.25rem)]">
           <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-cyan font-display text-xs font-bold text-obsidian">KC</span>
           <span className="min-w-0">
-            <span className="block truncate text-xs leading-tight">
+            <span className="line-clamp-2 text-xs leading-tight">
               <span className="font-display font-semibold text-ivory">kitecat</span>
               <span className="text-mist"> · voice message</span>
             </span>
@@ -192,6 +193,7 @@ export function HowItWorks() {
             </li>
           ))}
         </ol>
+        <p className="mt-14 text-center text-[0.8125rem] text-mist md:mt-20">Illustrative UI — concepts of the creator flow, not screenshots of the app.</p>
       </div>
     </section>
   )

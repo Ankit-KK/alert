@@ -35,7 +35,22 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
     gsap.ticker.add(tick)
     gsap.ticker.lagSmoothing(0)
 
+    // Keyboard focus moving off-screen (Tab / Shift+Tab) jumps straight to the
+    // control, clear of the fixed header, instead of waiting on Lenis to ease
+    // there. Programmatic focus targets (tabindex -1, e.g. sections reached
+    // from nav links) and the header's own controls are left alone.
+    const onFocusIn = (event: FocusEvent) => {
+      const el = event.target
+      if (!(el instanceof HTMLElement) || el.tabIndex < 0 || el.closest('header') || !el.matches(':focus-visible')) return
+      const nav = document.querySelector('header')?.getBoundingClientRect().bottom ?? 0
+      const r = el.getBoundingClientRect()
+      if (r.top >= nav && r.bottom <= window.innerHeight) return
+      lenis.scrollTo(el, { immediate: true, offset: -(nav + 16) })
+    }
+    document.addEventListener('focusin', onFocusIn)
+
     return () => {
+      document.removeEventListener('focusin', onFocusIn)
       gsap.ticker.remove(tick)
       gsap.ticker.lagSmoothing(500, 33)
       lenis.destroy()

@@ -16,7 +16,7 @@ export function Soundboard() {
       className="relative px-4 py-28 sm:px-6 md:py-40 lg:px-10"
     >
       <div className="mx-auto grid max-w-[1440px] gap-12 md:grid-cols-12">
-        <div className="md:col-span-6 lg:col-span-5">
+        <div className="md:col-span-6">
           <p data-reveal className="eyebrow mb-5">
             Soundboard
           </p>

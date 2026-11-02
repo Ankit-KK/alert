@@ -36,11 +36,15 @@ export function SiteNav({ active }: { active: SectionId }) {
   }, [])
 
   // Mobile menu: lock scroll, trap focus, close on Escape or desktop resize.
+  // The page behind is made inert so screen-reader browsing stays in the menu
+  // too; the toggle (the close button) lives in the header and stays reachable.
   useEffect(() => {
     if (!open) return
     lock()
     const panel = panelRef.current
     panel?.querySelector<HTMLElement>(FOCUSABLE)?.focus()
+    const behind = [document.getElementById('main'), document.querySelector('footer')].filter(Boolean) as HTMLElement[]
+    behind.forEach((el) => (el.inert = true))
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -68,6 +72,7 @@ export function SiteNav({ active }: { active: SectionId }) {
     return () => {
       document.removeEventListener('keydown', onKey)
       mql.removeEventListener('change', onWide)
+      behind.forEach((el) => (el.inert = false))
       unlock()
     }
   }, [open, lock, unlock, close])
@@ -76,7 +81,16 @@ export function SiteNav({ active }: { active: SectionId }) {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50">
-      <a href="#main" className="sr-only-focusable btn btn-primary absolute top-3 left-3 z-10">
+      {/* Scrim behind the bar once the page has scrolled, so the logo and CTA
+          never sit on top of section type. Kept off the header itself: a
+          backdrop-filter there would trap the fixed mobile menu inside it. */}
+      <span
+        aria-hidden="true"
+        className={`pointer-events-none absolute inset-0 -z-10 border-b transition-[background-color,border-color,backdrop-filter] duration-500 ${
+          compact ? 'border-line/70 bg-obsidian/90 backdrop-blur-md' : 'border-transparent bg-transparent backdrop-blur-none'
+        }`}
+      />
+      <a href="#main" className="sr-only-focusable btn btn-primary absolute top-3 left-3 z-20">
         Skip to content
       </a>
       <div

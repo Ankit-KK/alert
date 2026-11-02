@@ -3,6 +3,25 @@
 @import '@fontsource-variable/inter';
 @import 'lenis/dist/lenis.css';
 
+/* Reduced motion is the OS setting or the `?motion=reduce` QA flag, which
+   main.tsx mirrors to html[data-motion='reduce'] before first render. Tailwind's
+   motion variants honour both. */
+@custom-variant motion-safe {
+  @media (prefers-reduced-motion: no-preference) {
+    html:not([data-motion='reduce']) & {
+      @slot;
+    }
+  }
+}
+@custom-variant motion-reduce {
+  @media (prefers-reduced-motion: reduce) {
+    @slot;
+  }
+  html[data-motion='reduce'] & {
+    @slot;
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /* Design tokens                                                       */
 /* ------------------------------------------------------------------ */
@@ -46,6 +65,10 @@
     html:not(.lenis) {
       scroll-behavior: auto;
     }
+  }
+
+  html[data-motion='reduce']:not(.lenis) {
+    scroll-behavior: auto;
   }
 
   body {
@@ -287,4 +310,13 @@ html[data-stage='ready'] .brand-flat-mark {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+/* Same, for the `?motion=reduce` flag. */
+html[data-motion='reduce'] *,
+html[data-motion='reduce'] *::before,
+html[data-motion='reduce'] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
 }

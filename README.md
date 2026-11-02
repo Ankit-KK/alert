@@ -12,7 +12,7 @@ npm run preview    # serve dist/ on http://localhost:4173
 npm run check      # lint + build + content/colour guard
 ```
 
-QA query flags: `?webgl=0` (static fallback), `?quality=low|high` (force render tier), `?motion=reduce` (reduced-motion mode).
+QA query flags: `?webgl=0` (static fallback), `?quality=low|high` (force the render tier and keep the 3D stage running even on software WebGL or slow frames), `?motion=reduce` (reduced-motion mode: JS motion off and, through `html[data-motion="reduce"]`, the same CSS rules as the OS setting).
 
 `VITE_SITE_URL` (in `.env`) sets the canonical / Open Graph origin. It defaults to `https://hyperchat.space`; override it per deployment.
 
@@ -34,13 +34,15 @@ src/
   components/navigation/     header + accessible mobile menu
   components/layout/         fixed stage layer, footer
   components/brand/Logo.tsx  the flat logo lockup (the 3D mark is components/three/BrandEmblem.tsx)
-scripts/check-content.mjs    blocks restricted wording, currency symbols and purple-family colours
+scripts/check-content.mjs    blocks restricted wording, currency symbols and purple-family colours (text, build CSS, raster images)
 ```
 
 - **One scroll authority.** Lenis drives window scroll from GSAP's ticker; ScrollTrigger listens to it. With reduced motion Lenis is never created and native scroll is used.
 - **One canvas.** A fixed, `pointer-events: none` canvas sits under all content. Every control is a DOM element; the 3D mirrors their state through `sceneStore` (no per-frame React state).
 - **Deterministic choreography.** `useSceneDirector` measures each `section[data-scene]` and blends the two camera keyframes whose sections straddle the viewport centre (`lib/motion/keyframes.ts`). Any scroll position — including nav jumps — maps to exactly one camera state.
 - **Lazy 3D.** three.js/R3F load in a dynamic chunk after first paint and font load; the post-processing stack is a further lazy chunk used on the high tier only. A static SVG rendition shows while loading and whenever WebGL is unavailable.
+- **The 3D is optional.** The static stage stays when the only WebGL is a software rasteriser (SwiftShader, llvmpipe and similar), when frames stay slow after the stage has downgraded itself, and, through an error boundary, when the 3D or post-processing chunk fails to load or WebGL throws. `?quality=` skips the software and slow-frame bailouts for QA.
+- **Accessible motion.** Scroll reveals animate opacity and position only, so unrevealed content stays in the tab order and the accessibility tree; focus inside a section completes its reveal at once. Keyboard focus that lands off-screen jumps straight into view below the fixed header instead of easing there. While the mobile menu is open the page behind it is `inert`.
 
 ## Product claims and demos
 
@@ -55,11 +57,11 @@ The public site (hyperchat.space) and the V2 preview were not reachable from the
 
 ## Brand assets
 
-`public/brand/hyperchat-mark.svg` and `hyperchat-wordmark.svg` are vector traces of the supplied official logo files (the matching `.png` files are the untouched originals, cropped). Proportions and the logo's own blue → magenta gradient are preserved; it is the only place that colour appears, and `scripts/check-content.mjs` allowlists exactly these brand files. The 3D stage extrudes the same SVG (`components/three/BrandEmblem.tsx`), and `public/favicon.svg`, `public/og-image.png` and `public/brand/apple-touch-icon.png` are built from it.
+`public/brand/hyperchat-mark.svg` and `hyperchat-wordmark.svg` are vector traces of the supplied official logo files (the matching `.png` files are the untouched originals, cropped). Proportions and the logo's own blue → magenta gradient are preserved; it is the only place that colour appears, and `scripts/check-content.mjs` allowlists exactly these brand files (plus the logo box of `public/og-image.png` in its image pass). `CHECK_ROOT=<dir> node scripts/check-content.mjs` runs the same guard over another tree. The 3D stage extrudes the same SVG (`components/three/BrandEmblem.tsx`), and `public/favicon.svg`, `public/og-image.png` and `public/brand/apple-touch-icon.png` are built from it.
 
 ## Audio
 
-All demo audio is static and lives in `public/audio` (about 320 KB in total). Nothing is generated, streamed or uploaded at runtime.
+All demo audio is static and lives in `public/audio` (about 300 KB in total). Nothing is generated, streamed or uploaded at runtime.
 
 | File | Source |
 | --- | --- |

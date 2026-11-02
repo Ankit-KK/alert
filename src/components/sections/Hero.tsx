@@ -28,10 +28,10 @@ export function Hero() {
       const tl = gsap.timeline({ defaults: { ease: 'expo.out' } })
       tl.to(sceneStore, { intro: 1, duration: 2.2, ease: 'power3.out' }, 0)
         .from('[data-hero-line] > span', { yPercent: 105, duration: 1.1, stagger: 0.09 }, 0.2)
-        .from('[data-hero-eyebrow]', { autoAlpha: 0, y: 12, duration: 0.8 }, 0.3)
-        .from('[data-hero-copy]', { autoAlpha: 0, y: 20, duration: 0.9 }, 0.65)
-        .from('[data-hero-cta] > *', { autoAlpha: 0, y: 16, duration: 0.8, stagger: 0.08 }, 0.85)
-        .from('[data-hero-cue]', { autoAlpha: 0, duration: 0.8 }, 1.1)
+        .from('[data-hero-eyebrow]', { opacity: 0, y: 12, duration: 0.8 }, 0.3)
+        .from('[data-hero-copy]', { opacity: 0, y: 20, duration: 0.9 }, 0.65)
+        .from('[data-hero-cta] > *', { opacity: 0, y: 16, duration: 0.8, stagger: 0.08 }, 0.85)
+        .from('[data-hero-cue]', { opacity: 0, duration: 0.8 }, 1.1)
     }, root)
     return () => {
       ctx.revert()
@@ -45,7 +45,7 @@ export function Hero() {
       ref={root}
       data-scene
       aria-labelledby="hero-title"
-      className="relative flex min-h-svh flex-col justify-end px-4 pt-28 pb-24 sm:px-6 md:justify-center md:pb-16 lg:px-10"
+      className="relative flex min-h-svh flex-col justify-end px-4 pt-28 pb-[calc(2.5rem+env(safe-area-inset-bottom))] sm:px-6 sm:pb-24 md:justify-center md:pb-16 lg:px-10"
     >
       <div className="mx-auto w-full max-w-[1440px]">
         <p data-hero-eyebrow className="eyebrow mb-5 flex items-center gap-2.5">
